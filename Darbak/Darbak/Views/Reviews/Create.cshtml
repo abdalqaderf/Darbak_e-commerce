@@ -1,80 +1,68 @@
-﻿@model Darbak.Models.Review
+@model Darbak.Models.Review
 
 @{
-    ViewData["Title"] = "Add Review";
+    ViewData["Title"] = "Write a Review";
 }
 
-<h2>Add Review</h2>
+<nav class="darbak-breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Home</a>
+    <span aria-hidden="true">/</span>
+    <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">Product</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">Write a Review</span>
+</nav>
 
-<h4>@ViewBag.ProductName</h4>
+<section class="feedback-form-page" aria-labelledby="review-title">
+    <div class="feedback-form-card">
+        <div class="feedback-form-heading">
+            <span class="section-eyebrow">Product Feedback</span>
+            <h1 id="review-title">Write a Review</h1>
+            <p>Share your experience with <strong>@ViewBag.ProductName</strong>. Your review will be visible after admin approval.</p>
+        </div>
 
-<form asp-action="Create"
-      method="post">
+        <form asp-action="Create" method="post" class="feedback-form">
+            <input asp-for="ProductId" type="hidden" />
 
-    <input asp-for="ProductId"
-           type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
 
-    <div asp-validation-summary="ModelOnly"
-         class="text-danger mb-3">
+            <div class="feedback-form-field">
+                <label asp-for="Rating" class="form-label">Rating</label>
+                <select asp-for="Rating" class="form-select" aria-describedby="rating-help">
+                    <option value="">Select rating</option>
+                    <option value="5">5 — Excellent</option>
+                    <option value="4">4 — Very good</option>
+                    <option value="3">3 — Good</option>
+                    <option value="2">2 — Fair</option>
+                    <option value="1">1 — Poor</option>
+                </select>
+                <small id="rating-help" class="form-text">Choose a rating from 1 to 5 stars.</small>
+                <span asp-validation-for="Rating" class="field-validation-error"></span>
+            </div>
+
+            <div class="feedback-form-field">
+                <label asp-for="Comment" class="form-label">Review</label>
+                <textarea asp-for="Comment"
+                          class="form-control"
+                          rows="6"
+                          maxlength="1000"
+                          placeholder="What did you think about this product?"></textarea>
+                <div class="feedback-form-hint-row">
+                    <small class="form-text">Keep your feedback clear and relevant to the product.</small>
+                    <small class="form-text">Max 1000 characters</small>
+                </div>
+                <span asp-validation-for="Comment" class="field-validation-error"></span>
+            </div>
+
+            <div class="feedback-form-actions">
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+                <a asp-controller="Products"
+                   asp-action="Details"
+                   asp-route-id="@Model.ProductId"
+                   class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-
-    <div class="mb-3">
-
-        <label asp-for="Rating"
-               class="form-label">
-        </label>
-
-        <select asp-for="Rating"
-                class="form-select">
-
-            <option value="">
-                Select Rating
-            </option>
-
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-
-        </select>
-
-        <span asp-validation-for="Rating"
-              class="text-danger">
-        </span>
-
-    </div>
-
-    <div class="mb-3">
-
-        <label asp-for="Comment"
-               class="form-label">
-        </label>
-
-        <textarea asp-for="Comment"
-                  class="form-control"
-                  rows="4">
-        </textarea>
-
-        <span asp-validation-for="Comment"
-              class="text-danger">
-        </span>
-
-    </div>
-
-    <button type="submit"
-            class="btn btn-primary">
-        Submit Review
-    </button>
-
-    <a asp-controller="Products"
-       asp-action="Details"
-       asp-route-id="@Model.ProductId"
-       class="btn btn-secondary">
-        Cancel
-    </a>
-
-</form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

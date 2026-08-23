@@ -1,54 +1,50 @@
-﻿@model Darbak.Models.Testimonial
+@model Darbak.Models.Testimonial
 
 @{
-    ViewData["Title"] = "Add Testimonial";
+    ViewData["Title"] = "Share Your Experience";
 }
 
-<h1 class="mb-4">Add Testimonial</h1>
+<nav class="darbak-breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Home</a>
+    <span aria-hidden="true">/</span>
+    <a asp-action="Index">Testimonials</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">Share Your Experience</span>
+</nav>
 
-<div class="row">
-    <div class="col-md-8">
+<section class="feedback-form-page" aria-labelledby="testimonial-title">
+    <div class="feedback-form-card">
+        <div class="feedback-form-heading">
+            <span class="section-eyebrow">Customer Story</span>
+            <h1 id="testimonial-title">Share Your Experience</h1>
+            <p>Tell other customers about your experience with Darbak. Submitted testimonials require admin approval before they appear publicly.</p>
+        </div>
 
-        <form asp-action="Create"
-              method="post">
+        <form asp-action="Create" method="post" class="feedback-form">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
 
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger mb-3">
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Content"
-                       class="form-label">
-                    Your Testimonial
-                </label>
-
+            <div class="feedback-form-field">
+                <label asp-for="Content" class="form-label">Your Testimonial</label>
                 <textarea asp-for="Content"
                           class="form-control"
-                          rows="6"
+                          rows="7"
+                          maxlength="1000"
                           placeholder="Write your testimonial..."></textarea>
-
-                <span asp-validation-for="Content"
-                      class="text-danger">
-                </span>
+                <div class="feedback-form-hint-row">
+                    <small class="form-text">Focus on your shopping or product experience.</small>
+                    <small class="form-text">Max 1000 characters</small>
+                </div>
+                <span asp-validation-for="Content" class="field-validation-error"></span>
             </div>
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Submit
-            </button>
-
-            <a asp-action="Index"
-               class="btn btn-secondary">
-                Cancel
-            </a>
-
+            <div class="feedback-form-actions">
+                <button type="submit" class="btn btn-primary">Submit Testimonial</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
         </form>
-
     </div>
-</div>
+</section>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

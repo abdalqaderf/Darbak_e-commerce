@@ -1,13 +1,31 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
+    var isHome = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
+
+    var isShop = string.Equals(currentController, "Catalog", StringComparison.OrdinalIgnoreCase);
+
+    var isAbout = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, "About", StringComparison.OrdinalIgnoreCase);
+
+    var isAdmin = User.IsInRole("Admin");
+    var isIdentityArea = ViewData["IdentityArea"] is bool identityArea && identityArea;
+
+    var currentSearch = isShop
+        ? Context.Request.Query["search"].ToString()
+        : string.Empty;
+}
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>@ViewData["Title"] - Darbak</title>
+
+    <meta name="theme-color" content="#111827" />
 
     <script type="importmap"></script>
 
@@ -22,52 +40,163 @@
           href="~/Darbak.styles.css"
           asp-append-version="true" />
 </head>
+<body class="d-flex flex-column min-vh-100 @(isIdentityArea ? "identity-context" : string.Empty)">
 
-<body class="d-flex flex-column min-vh-100">
-
-    <a class="skip-link"
-       href="#main-content">
+    <a class="skip-link" href="#main-content">
         Skip to main content
     </a>
 
-    <header>
+    <header class="site-header">
 
-        <nav class="navbar
-                    navbar-expand-lg
-                    navbar-light
-                    bg-white
-                    border-bottom
-                    shadow-sm"
-             aria-label="Main navigation">
-
+        <div class="site-utility-bar">
             <div class="container">
+                <div class="site-utility-content">
+                    <span>Auto Parts &amp; Car Accessories</span>
+                    <span class="site-utility-divider" aria-hidden="true"></span>
+                    <span>Built for Every Road</span>
+                </div>
+            </div>
+        </div>
 
-                <a class="navbar-brand fw-bold"
-                   asp-area=""
-                   asp-controller="Home"
-                   asp-action="Index">
-                    Darbak
-                </a>
+        <div class="site-header-main">
+            <div class="container">
+                <div class="site-header-grid">
 
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar"
-                        aria-controls="mainNavbar"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
+                    <a class="site-brand"
+                       asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index"
+                       aria-label="Darbak home">
 
-                    <span class="navbar-toggler-icon"></span>
+                        <span class="site-brand-mark" aria-hidden="true">
+                            D
+                        </span>
 
-                </button>
+                        <span class="site-brand-copy">
+                            <span class="site-brand-name">
+                                DAR<span>BAK</span>
+                            </span>
+                            <span class="site-brand-tagline">
+                                AUTO PARTS
+                            </span>
+                        </span>
+                    </a>
 
+                    <form class="site-search"
+                          asp-area=""
+                          asp-controller="Catalog"
+                          asp-action="Index"
+                          method="get"
+                          role="search">
+
+                        <label class="visually-hidden"
+                               for="globalSearch">
+                            Search products or categories
+                        </label>
+
+                        <div class="site-search-box">
+                            <svg class="site-search-icon"
+                                 viewBox="0 0 24 24"
+                                 width="20"
+                                 height="20"
+                                 aria-hidden="true"
+                                 focusable="false">
+                                <path d="M11 4a7 7 0 1 0 4.9 12l4.55 4.55 1.4-1.4L17.3 14.6A7 7 0 0 0 11 4Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"
+                                      fill="currentColor" />
+                            </svg>
+
+                            <input id="globalSearch"
+                                   class="site-search-input"
+                                   type="search"
+                                   name="search"
+                                   value="@currentSearch"
+                                   placeholder="Search products or categories..."
+                                   autocomplete="off" />
+
+                            <button class="site-search-button"
+                                    type="submit"
+                                    aria-label="Search">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="site-header-actions">
+
+                        <a class="site-action"
+                           asp-area=""
+                           asp-controller="Wishlist"
+                           asp-action="Index"
+                           aria-label="Wishlist">
+
+                            <svg class="site-action-icon"
+                                 viewBox="0 0 24 24"
+                                 width="22"
+                                 height="22"
+                                 aria-hidden="true"
+                                 focusable="false">
+                                <path d="M12 21s-7.5-4.35-9.6-8.7C.8 8.95 2.55 5 6.45 5c2.05 0 3.35 1.15 4.05 2.2C11.2 6.15 12.5 5 14.55 5c3.9 0 5.65 3.95 4.05 7.3C16.5 16.65 12 21 12 21Zm0-2.45c2.65-1.8 5.35-4.5 6.05-6.05 1.05-2.2.05-5.5-3.5-5.5-1.55 0-2.8.95-3.55 2.4h-2C8.25 7.95 7 7 5.45 7c-3.55 0-4.55 3.3-3.5 5.5.75 1.55 3.4 4.25 6.05 6.05L12 21l4-2.45Z"
+                                      fill="currentColor" />
+                            </svg>
+
+                            <span class="site-action-copy">
+                                <span class="site-action-kicker">Saved</span>
+                                <span class="site-action-label">Wishlist</span>
+                            </span>
+                        </a>
+
+                        <a class="site-action"
+                           asp-area=""
+                           asp-controller="Cart"
+                           asp-action="Index"
+                           aria-label="Shopping cart">
+
+                            <svg class="site-action-icon"
+                                 viewBox="0 0 24 24"
+                                 width="22"
+                                 height="22"
+                                 aria-hidden="true"
+                                 focusable="false">
+                                <path d="M3 3h2.25l1.7 9.35A2 2 0 0 0 8.92 14h7.98a2 2 0 0 0 1.9-1.38L21 6H7.1l-.36-2H3V3Zm4.47 5H18.2l-1.35 4H8.92L7.47 8ZM9 16.5A1.5 1.5 0 1 0 9 19.5 1.5 1.5 0 0 0 9 16.5Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
+                                      fill="currentColor" />
+                            </svg>
+
+                            <span class="site-action-copy">
+                                <span class="site-action-kicker">Your</span>
+                                <span class="site-action-label">Cart</span>
+                            </span>
+                        </a>
+
+                        <partial name="_LoginPartial" />
+
+                    </div>
+
+                    <button class="site-nav-toggler navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#siteNavigation"
+                            aria-controls="siteNavigation"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <nav class="site-navigation navbar navbar-expand-lg"
+             aria-label="Main navigation">
+            <div class="container">
                 <div class="collapse navbar-collapse"
-                     id="mainNavbar">
+                     id="siteNavigation">
 
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav site-primary-nav">
 
                         <li class="nav-item">
-                            <a class="nav-link"
+                            <a class="nav-link @(isHome ? "active" : string.Empty)"
+                               aria-current="@(isHome ? "page" : null)"
+                               asp-area=""
                                asp-controller="Home"
                                asp-action="Index">
                                 Home
@@ -75,49 +204,30 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link"
+                            <a class="nav-link @(isShop ? "active" : string.Empty)"
+                               aria-current="@(isShop ? "page" : null)"
+                               asp-area=""
                                asp-controller="Catalog"
                                asp-action="Index">
-                                Catalog
+                                Shop
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link"
+                            <a class="nav-link @(isAbout ? "active" : string.Empty)"
+                               aria-current="@(isAbout ? "page" : null)"
+                               asp-area=""
                                asp-controller="Home"
                                asp-action="About">
-                                About
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Testimonials"
-                               asp-action="Index">
-                                Testimonials
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Cart"
-                               asp-action="Index">
-                                Cart
+                                About Us
                             </a>
                         </li>
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
+                            <li class="nav-item d-lg-none">
                                 <a class="nav-link"
-                                   asp-controller="Wishlist"
-                                   asp-action="Index">
-                                    Wishlist
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link"
+                                   asp-area=""
                                    asp-controller="Orders"
                                    asp-action="Index">
                                     My Orders
@@ -125,213 +235,13 @@
                             </li>
                         }
 
-                        @if (User.IsInRole("Admin"))
+                        @if (isAdmin)
                         {
-                            <li class="nav-item dropdown">
-
-                                <a class="nav-link dropdown-toggle"
-                                   href="#"
-                                   id="adminDropdown"
-                                   role="button"
-                                   data-bs-toggle="dropdown"
-                                   aria-expanded="false">
-                                    Admin
-                                </a>
-
-                                <ul class="dropdown-menu"
-                                    aria-labelledby="adminDropdown">
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="AdminDashboard"
-                                           asp-action="Index">
-                                            Dashboard
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="AdminUsers"
-                                           asp-action="Index">
-                                            Users
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <hr class="dropdown-divider" />
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Categories"
-                                           asp-action="Index">
-                                            Categories
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Products"
-                                           asp-action="Index">
-                                            Products
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Orders"
-                                           asp-action="AdminIndex">
-                                            Orders
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Reviews"
-                                           asp-action="Index">
-                                            Reviews
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Testimonials"
-                                           asp-action="AdminIndex">
-                                            Testimonials
-                                        </a>
-                                    </li>
-
-                                </ul>
-
-                            </li>
-                        }
-
-                    </ul>
-
-                    <partial name="_LoginPartial" />
-
-                </div>
-
-            </div>
-
-        </nav>
-
-    </header>
-
-    <partial name="_ToastNotifications" />
-
-    <main id="main-content"
-          class="container flex-grow-1 py-4"
-          role="main">
-
-        @RenderBody()
-
-    </main>
-
-    <footer class="border-top bg-light text-muted mt-auto">
-
-        <div class="container py-4">
-
-            <div class="row g-4">
-
-                <div class="col-12 col-md-4">
-
-                    <h5 class="text-dark">
-                        Darbak
-                    </h5>
-
-                    <p class="mb-0">
-                        Auto parts and car accessories
-                        for your journey.
-                    </p>
-
-                </div>
-
-                <div class="col-6 col-md-4">
-
-                    <h6 class="text-dark">
-                        Quick Links
-                    </h6>
-
-                    <ul class="list-unstyled mb-0">
-
-                        <li class="mb-2">
-                            <a asp-controller="Home"
-                               asp-action="Index"
-                               class="footer-link">
-                                Home
-                            </a>
-                        </li>
-
-                        <li class="mb-2">
-                            <a asp-controller="Catalog"
-                               asp-action="Index"
-                               class="footer-link">
-                                Catalog
-                            </a>
-                        </li>
-
-                        <li class="mb-2">
-                            <a asp-controller="Home"
-                               asp-action="About"
-                               class="footer-link">
-                                About
-                            </a>
-                        </li>
-
-                        <li>
-                            <a asp-controller="Testimonials"
-                               asp-action="Index"
-                               class="footer-link">
-                                Testimonials
-                            </a>
-                        </li>
-
-                    </ul>
-
-                </div>
-
-                <div class="col-6 col-md-4">
-
-                    <h6 class="text-dark">
-                        Account
-                    </h6>
-
-                    <ul class="list-unstyled mb-0">
-
-                        <li class="mb-2">
-                            <a asp-controller="Cart"
-                               asp-action="Index"
-                               class="footer-link">
-                                Cart
-                            </a>
-                        </li>
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="mb-2">
-                                <a asp-controller="Wishlist"
-                                   asp-action="Index"
-                                   class="footer-link">
-                                    Wishlist
-                                </a>
-                            </li>
-
-                            <li class="mb-2">
-                                <a asp-controller="Orders"
-                                   asp-action="Index"
-                                   class="footer-link">
-                                    My Orders
-                                </a>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="mb-2">
-                                <a asp-controller="AdminDashboard"
-                                   asp-action="Index"
-                                   class="footer-link">
+                            <li class="nav-item site-admin-nav-item">
+                                <a class="nav-link"
+                                   asp-area=""
+                                   asp-controller="AdminDashboard"
+                                   asp-action="Index">
                                     Admin Dashboard
                                 </a>
                             </li>
@@ -340,34 +250,167 @@
                     </ul>
 
                 </div>
+            </div>
+        </nav>
 
+    </header>
+
+    <partial name="_ToastNotifications" />
+
+    <main id="main-content"
+          class="container flex-grow-1 py-4 py-lg-5"
+          role="main"
+          tabindex="-1">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer mt-auto">
+        <div class="container">
+
+            <div class="site-footer-main">
+                <div class="row g-4 g-lg-5">
+
+                    <div class="col-12 col-lg-5">
+                        <a class="site-footer-brand"
+                           asp-area=""
+                           asp-controller="Home"
+                           asp-action="Index">
+                            DAR<span>BAK</span>
+                        </a>
+
+                        <p class="site-footer-description">
+                            Auto parts and car accessories for drivers who value
+                            quality, performance, and a clean shopping experience.
+                        </p>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <h2 class="site-footer-heading">Quick Links</h2>
+
+                        <ul class="site-footer-links">
+                            <li>
+                                <a asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                    Home
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area=""
+                                   asp-controller="Catalog"
+                                   asp-action="Index">
+                                    Shop
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="About">
+                                    About Us
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area=""
+                                   asp-controller="Testimonials"
+                                   asp-action="Index">
+                                    Testimonials
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <h2 class="site-footer-heading">Shopping</h2>
+
+                        <ul class="site-footer-links">
+                            <li>
+                                <a asp-area=""
+                                   asp-controller="Cart"
+                                   asp-action="Index">
+                                    Cart
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area=""
+                                   asp-controller="Wishlist"
+                                   asp-action="Index">
+                                    Wishlist
+                                </a>
+                            </li>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li>
+                                    <a asp-area=""
+                                       asp-controller="Orders"
+                                       asp-action="Index">
+                                        My Orders
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <h2 class="site-footer-heading">Account</h2>
+
+                        <ul class="site-footer-links">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li>
+                                    <a asp-area="Identity"
+                                       asp-page="/Account/Manage/Index">
+                                        Manage Account
+                                    </a>
+                                </li>
+
+                                @if (isAdmin)
+                                {
+                                    <li>
+                                        <a asp-area=""
+                                           asp-controller="AdminDashboard"
+                                           asp-action="Index">
+                                            Admin Dashboard
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li>
+                                    <a asp-area="Identity"
+                                       asp-page="/Account/Login">
+                                        Sign In
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="Identity"
+                                       asp-page="/Account/Register">
+                                        Create Account
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                </div>
             </div>
 
-            <hr class="my-4" />
-
-            <div class="text-center small">
-
-                &copy; @DateTime.Now.Year Darbak.
-                All rights reserved.
-
+            <div class="site-footer-bottom">
+                <p class="mb-0">
+                    &copy; @DateTime.Now.Year Darbak. All rights reserved.
+                </p>
             </div>
 
         </div>
-
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="~/js/site.js"
             asp-append-version="true"></script>
 
-    @await RenderSectionAsync(
-        "Scripts",
-        required: false
-    )
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
-
 </html>

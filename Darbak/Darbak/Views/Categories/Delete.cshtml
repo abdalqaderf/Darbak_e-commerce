@@ -1,61 +1,7 @@
-﻿@model Darbak.Models.Category
-
-@{
-    ViewData["Title"] = "Delete Category";
-}
-
-<h1>Delete Category</h1>
-
-<h4>@Model.Name</h4>
-
-@if (!string.IsNullOrWhiteSpace(Model.Description))
-{
-    <p>
-        @Model.Description
-    </p>
-}
-
-@if (Model.Products.Any())
-{
-    <div class="alert alert-danger">
-
-        This category contains
-        <strong>@Model.Products.Count</strong>
-        product(s).
-
-        <br />
-
-        Remove or move these products to another category
-        before deleting this category.
-
-    </div>
-
-    <a asp-action="Index"
-       class="btn btn-secondary">
-        Back
-    </a>
-}
-else
-{
-    <div class="alert alert-warning">
-        Are you sure you want to delete this category?
-    </div>
-
-    <form asp-action="Delete"
-          method="post">
-
-        <input type="hidden"
-               asp-for="Id" />
-
-        <button type="submit"
-                class="btn btn-danger">
-            Delete
-        </button>
-
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            Cancel
-        </a>
-
-    </form>
-}
+@model Darbak.Models.Category
+@{ Layout = "_AdminLayout"; ViewData["Title"] = "Delete Category"; }
+<div class="admin-page-heading"><div><span class="admin-page-heading__eyebrow">Catalog</span><h1>Delete Category</h1><p>Review the category before deletion.</p></div><a asp-action="Index" class="btn btn-outline-secondary">Back to Categories</a></div>
+<section class="admin-form-card admin-form-card--danger"><div class="admin-definition-grid"><div><span>Category</span><strong>@Model.Name</strong></div><div class="admin-definition-grid__full"><span>Description</span><strong>@(string.IsNullOrWhiteSpace(Model.Description) ? "No description" : Model.Description)</strong></div></div>
+@if (Model.Products.Any()) { <div class="alert alert-danger mt-4"><strong>Deletion blocked.</strong> This category still contains products. Move or remove those products first.</div><div class="admin-form-actions"><a asp-action="Index" class="btn btn-outline-secondary">Back</a></div> }
+else { <div class="alert alert-warning mt-4">This action permanently removes the category.</div><form asp-action="Delete" method="post" class="admin-form-actions"><input asp-for="Id" type="hidden" /><button type="submit" class="btn btn-danger">Delete Category</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></form> }
+</section>

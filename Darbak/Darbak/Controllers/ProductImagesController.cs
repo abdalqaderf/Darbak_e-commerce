@@ -11,27 +11,33 @@ namespace Darbak.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<ProductImagesController> _logger;
 
-        private const long MaxImageSize =
-            5 * 1024 * 1024;
+        private const long MaxImageSize = 5 * 1024 * 1024;
+        private const string ProductImagesRelativeFolder = "images/products";
 
         public ProductImagesController(
             ApplicationDbContext context,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            ILogger<ProductImagesController> logger)
         {
             _context = context;
             _environment = environment;
+            _logger = logger;
         }
 
         // INDEX
         [HttpGet]
         public async Task<IActionResult> Index(
-            int productId)
+            int productId,
+            CancellationToken cancellationToken)
         {
             var product = await _context.Products
+                .AsNoTracking()
                 .Include(p => p.Images)
                 .FirstOrDefaultAsync(
-                    p => p.Id == productId);
+                    p => p.Id == productId,
+                    cancellationToken);
 
             if (product == null)
             {
@@ -44,26 +50,26 @@ namespace Darbak.Controllers
         // CREATE GET
         [HttpGet]
         public async Task<IActionResult> Create(
-            int productId)
+            int productId,
+            CancellationToken cancellationToken)
         {
             var product = await _context.Products
-                .FindAsync(productId);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    p => p.Id == productId,
+                    cancellationToken);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            ViewBag.ProductName =
-                product.Name;
+            ViewBag.ProductName = product.Name;
 
-            var viewModel =
-                new ProductImageCreateViewModel
-                {
-                    ProductId = product.Id
-                };
-
-            return View(viewModel);
+            return View(new ProductImageCreateViewModel
+            {
+                ProductId = product.Id
+            });
         }
 
         // CREATE POST
@@ -71,396 +77,420 @@ namespace Darbak.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             ProductImageCreateViewModel viewModel,
-            IFormFile? imageFile)
+            CancellationToken cancellationToken)
         {
             var product = await _context.Products
                 .Include(p => p.Images)
                 .FirstOrDefaultAsync(
-                    p => p.Id == viewModel.ProductId);
+                    p => p.Id == viewModel.ProductId,
+                    cancellationToken);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            /*
-             * ImageUrl is no longer entered by the user.
-             * It will be generated after securely saving
-             * the uploaded image.
-             */
-            ModelState.Remove(
-                nameof(viewModel.ImageUrl));
+            ViewBag.ProductName = product.Name;
 
-            var validationError =
-                await ValidateImageAsync(
-                    imageFile);
-
-            if (validationError != null)
+            if (viewModel.ImageFile != null)
             {
-                ModelState.AddModelError(
-                    "imageFile",
-                    validationError);
+                var validationError = await ValidateImageAsync(
+                    viewModel.ImageFile,
+                    cancellationToken);
+
+                if (validationError != null)
+                {
+                    ModelState.AddModelError(
+                        nameof(viewModel.ImageFile),
+                        validationError);
+                }
             }
 
             if (!ModelState.IsValid)
             {
-                ViewBag.ProductName =
-                    product.Name;
-
                 return View(viewModel);
             }
 
-            var extension =
-                Path.GetExtension(
-                        imageFile!.FileName)
+            string? physicalPath = null;
+
+            try
+            {
+                var imageFile = viewModel.ImageFile!;
+
+                var extension = Path.GetExtension(imageFile.FileName)
                     .ToLowerInvariant();
 
-            var fileName =
-                $"{Guid.NewGuid():N}{extension}";
+                var fileName = $"{Guid.NewGuid():N}{extension}";
 
-            var webRootPath =
-                _environment.WebRootPath
-                ?? Path.Combine(
-                    _environment.ContentRootPath,
-                    "wwwroot");
+                var webRootPath = GetWebRootPath();
 
-            var uploadDirectory =
-                Path.Combine(
+                var uploadDirectory = Path.Combine(
                     webRootPath,
                     "images",
                     "products");
 
-            Directory.CreateDirectory(
-                uploadDirectory);
+                Directory.CreateDirectory(uploadDirectory);
 
-            var physicalPath =
-                Path.Combine(
+                physicalPath = Path.Combine(
                     uploadDirectory,
                     fileName);
 
-            var relativePath =
-                $"/images/products/{fileName}";
-
-            try
-            {
-                await using (
-                    var fileStream =
-                    new FileStream(
-                        physicalPath,
-                        FileMode.CreateNew,
-                        FileAccess.Write,
-                        FileShare.None))
+                await using (var fileStream = new FileStream(
+                    physicalPath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None,
+                    bufferSize: 81920,
+                    useAsync: true))
                 {
                     await imageFile.CopyToAsync(
-                        fileStream);
+                        fileStream,
+                        cancellationToken);
                 }
 
-                var isFirstImage =
-                    !product.Images.Any();
-
-                var shouldBeMain =
-                    viewModel.IsMain ||
-                    isFirstImage;
+                var isFirstImage = !product.Images.Any();
+                var shouldBeMain = viewModel.IsMain || isFirstImage;
 
                 if (shouldBeMain)
                 {
-                    foreach (var existingImage
-                             in product.Images)
+                    foreach (var existingImage in product.Images)
                     {
-                        existingImage.IsMain =
-                            false;
+                        existingImage.IsMain = false;
                     }
                 }
 
-                var productImage =
-                    new ProductImage
-                    {
-                        ProductId =
-                            product.Id,
-
-                        ImageUrl =
-                            relativePath,
-
-                        IsMain =
-                            shouldBeMain
-                    };
-
-                _context.ProductImages.Add(
-                    productImage);
-
-                await _context.SaveChangesAsync();
-
-                TempData["ImageSuccess"] =
-                    isFirstImage
-                        ? "Image uploaded successfully and set as the main image."
-                        : "Image uploaded successfully.";
-            }
-            catch
-            {
-                if (System.IO.File.Exists(
-                        physicalPath))
+                var productImage = new ProductImage
                 {
-                    System.IO.File.Delete(
-                        physicalPath);
-                }
+                    ProductId = product.Id,
+                    ImageUrl =
+                        $"/{ProductImagesRelativeFolder}/{fileName}",
+                    IsMain = shouldBeMain
+                };
 
+                _context.ProductImages.Add(productImage);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                TempData["ImageSuccess"] = isFirstImage
+                    ? "Image uploaded successfully and set as the main image."
+                    : "Image uploaded successfully.";
+
+                return RedirectToAction(
+                    nameof(Index),
+                    new { productId = product.Id });
+            }
+            catch (OperationCanceledException)
+            {
+                TryDeletePhysicalFile(physicalPath);
                 throw;
             }
+            catch (Exception ex)
+            {
+                TryDeletePhysicalFile(physicalPath);
 
-            return RedirectToAction(
-                nameof(Index),
-                new
-                {
-                    productId = product.Id
-                });
+                _logger.LogError(
+                    ex,
+                    "Failed to upload an image for product {ProductId}.",
+                    product.Id);
+
+                ModelState.AddModelError(
+                    nameof(viewModel.ImageFile),
+                    "The image could not be uploaded. Please try again.");
+
+                return View(viewModel);
+            }
         }
 
         // SET MAIN
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetMain(
-            int id)
+            int id,
+            CancellationToken cancellationToken)
         {
-            var image =
-                await _context.ProductImages
-                    .FirstOrDefaultAsync(
-                        i => i.Id == id);
+            var image = await _context.ProductImages
+                .FirstOrDefaultAsync(
+                    i => i.Id == id,
+                    cancellationToken);
 
             if (image == null)
             {
                 return NotFound();
             }
 
-            var productId =
-                image.ProductId;
+            var productId = image.ProductId;
 
             if (image.IsMain)
             {
                 return RedirectToAction(
                     nameof(Index),
-                    new
-                    {
-                        productId
-                    });
+                    new { productId });
             }
 
-            var productImages =
-                await _context.ProductImages
-                    .Where(i =>
-                        i.ProductId ==
-                        productId)
-                    .ToListAsync();
+            var productImages = await _context.ProductImages
+                .Where(i => i.ProductId == productId)
+                .ToListAsync(cancellationToken);
 
-            foreach (var productImage
-                     in productImages)
+            foreach (var productImage in productImages)
             {
-                productImage.IsMain = false;
+                productImage.IsMain = productImage.Id == id;
             }
 
-            image.IsMain = true;
-
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             TempData["ImageSuccess"] =
                 "Main image updated successfully.";
 
             return RedirectToAction(
                 nameof(Index),
-                new
-                {
-                    productId
-                });
+                new { productId });
         }
 
         // DELETE
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(
-            int id)
+            int id,
+            CancellationToken cancellationToken)
         {
-            var image =
-                await _context.ProductImages
-                    .FirstOrDefaultAsync(
-                        i => i.Id == id);
+            var image = await _context.ProductImages
+                .FirstOrDefaultAsync(
+                    i => i.Id == id,
+                    cancellationToken);
 
             if (image == null)
             {
                 return NotFound();
             }
 
-            var productId =
-                image.ProductId;
+            var productId = image.ProductId;
+            var wasMain = image.IsMain;
+            var imageUrl = image.ImageUrl;
 
-            var wasMain =
-                image.IsMain;
-
-            var imageUrl =
-                image.ImageUrl;
-
-            _context.ProductImages.Remove(
-                image);
+            _context.ProductImages.Remove(image);
 
             if (wasMain)
             {
                 var replacementImage =
                     await _context.ProductImages
                         .Where(i =>
-                            i.ProductId ==
-                            productId &&
+                            i.ProductId == productId &&
                             i.Id != id)
                         .OrderBy(i => i.Id)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync(cancellationToken);
 
                 if (replacementImage != null)
                 {
-                    replacementImage.IsMain =
-                        true;
+                    replacementImage.IsMain = true;
                 }
             }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+                when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to delete product image {ImageId} from the database.",
+                    id);
 
-            DeleteLocalImageFile(
-                imageUrl);
+                TempData["ImageError"] =
+                    "The image could not be deleted. Please try again.";
+
+                return RedirectToAction(
+                    nameof(Index),
+                    new { productId });
+            }
+
+            TryDeleteLocalImageFile(imageUrl);
 
             TempData["ImageSuccess"] =
                 "Image deleted successfully.";
 
             return RedirectToAction(
                 nameof(Index),
-                new
-                {
-                    productId
-                });
+                new { productId });
         }
 
-        private static async Task<string?>
-            ValidateImageAsync(
-                IFormFile? imageFile)
+        private static async Task<string?> ValidateImageAsync(
+            IFormFile imageFile,
+            CancellationToken cancellationToken)
         {
-            if (imageFile == null ||
-                imageFile.Length == 0)
+            if (imageFile.Length <= 0)
             {
-                return "Please select an image.";
+                return "Please select a non-empty image.";
             }
 
-            if (imageFile.Length >
-                MaxImageSize)
+            if (imageFile.Length > MaxImageSize)
             {
-                return
-                    "The image must not exceed 5 MB.";
+                return "The image must not exceed 5 MB.";
             }
 
-            var extension =
-                Path.GetExtension(
-                        imageFile.FileName)
-                    .ToLowerInvariant();
+            var extension = Path.GetExtension(imageFile.FileName)
+                .ToLowerInvariant();
 
-            var expectedContentType =
-                extension switch
-                {
-                    ".jpg" =>
-                        "image/jpeg",
-
-                    ".jpeg" =>
-                        "image/jpeg",
-
-                    ".png" =>
-                        "image/png",
-
-                    ".webp" =>
-                        "image/webp",
-
-                    _ =>
-                        null
-                };
-
-            if (expectedContentType == null)
+            if (!IsAllowedExtension(extension))
             {
                 return
                     "Only JPG, JPEG, PNG, and WebP images are allowed.";
             }
 
-            if (!string.Equals(
-                    imageFile.ContentType,
-                    expectedContentType,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!IsAllowedContentType(
+                    extension,
+                    imageFile.ContentType))
             {
                 return
                     "The uploaded file type does not match its extension.";
             }
 
-            if (!await HasValidImageSignatureAsync(
-                    imageFile,
-                    extension))
+            try
             {
-                return
-                    "The selected file is not a valid image.";
+                if (!await HasValidImageSignatureAsync(
+                        imageFile,
+                        extension,
+                        cancellationToken))
+                {
+                    return
+                        "The selected file is not a valid image.";
+                }
+            }
+            catch (IOException)
+            {
+                return "The selected image could not be read.";
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return "The selected image could not be accessed.";
+            }
+            catch (InvalidDataException)
+            {
+                return "The selected image could not be read.";
             }
 
             return null;
         }
 
+        private static bool IsAllowedExtension(
+            string extension)
+        {
+            return extension is
+                ".jpg" or
+                ".jpeg" or
+                ".png" or
+                ".webp";
+        }
+
+        private static bool IsAllowedContentType(
+            string extension,
+            string? contentType)
+        {
+            if (string.IsNullOrWhiteSpace(contentType))
+            {
+                return false;
+            }
+
+            return extension switch
+            {
+                ".jpg" or ".jpeg" =>
+                    contentType.Equals(
+                        "image/jpeg",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    contentType.Equals(
+                        "image/pjpeg",
+                        StringComparison.OrdinalIgnoreCase),
+
+                ".png" =>
+                    contentType.Equals(
+                        "image/png",
+                        StringComparison.OrdinalIgnoreCase),
+
+                ".webp" =>
+                    contentType.Equals(
+                        "image/webp",
+                        StringComparison.OrdinalIgnoreCase),
+
+                _ => false
+            };
+        }
+
         private static async Task<bool>
             HasValidImageSignatureAsync(
                 IFormFile imageFile,
-                string extension)
+                string extension,
+                CancellationToken cancellationToken)
         {
-            var header =
-                new byte[12];
+            var header = new byte[12];
 
             await using var stream =
                 imageFile.OpenReadStream();
 
-            var bytesRead =
-                await stream.ReadAsync(
+            var totalBytesRead = 0;
+
+            while (totalBytesRead < header.Length)
+            {
+                var bytesRead = await stream.ReadAsync(
                     header.AsMemory(
-                        0,
-                        header.Length));
+                        totalBytesRead,
+                        header.Length - totalBytesRead),
+                    cancellationToken);
 
-            if (extension == ".jpg" ||
-                extension == ".jpeg")
-            {
-                return bytesRead >= 3 &&
-                       header[0] == 0xFF &&
-                       header[1] == 0xD8 &&
-                       header[2] == 0xFF;
+                if (bytesRead == 0)
+                {
+                    break;
+                }
+
+                totalBytesRead += bytesRead;
             }
 
-            if (extension == ".png")
+            return extension switch
             {
-                return bytesRead >= 8 &&
-                       header[0] == 0x89 &&
-                       header[1] == 0x50 &&
-                       header[2] == 0x4E &&
-                       header[3] == 0x47 &&
-                       header[4] == 0x0D &&
-                       header[5] == 0x0A &&
-                       header[6] == 0x1A &&
-                       header[7] == 0x0A;
-            }
+                ".jpg" or ".jpeg" =>
+                    totalBytesRead >= 3 &&
+                    header[0] == 0xFF &&
+                    header[1] == 0xD8 &&
+                    header[2] == 0xFF,
 
-            if (extension == ".webp")
-            {
-                return bytesRead >= 12 &&
-                       header[0] == 0x52 &&
-                       header[1] == 0x49 &&
-                       header[2] == 0x46 &&
-                       header[3] == 0x46 &&
-                       header[8] == 0x57 &&
-                       header[9] == 0x45 &&
-                       header[10] == 0x42 &&
-                       header[11] == 0x50;
-            }
+                ".png" =>
+                    totalBytesRead >= 8 &&
+                    header[0] == 0x89 &&
+                    header[1] == 0x50 &&
+                    header[2] == 0x4E &&
+                    header[3] == 0x47 &&
+                    header[4] == 0x0D &&
+                    header[5] == 0x0A &&
+                    header[6] == 0x1A &&
+                    header[7] == 0x0A,
 
-            return false;
+                ".webp" =>
+                    totalBytesRead >= 12 &&
+                    header[0] == 0x52 &&
+                    header[1] == 0x49 &&
+                    header[2] == 0x46 &&
+                    header[3] == 0x46 &&
+                    header[8] == 0x57 &&
+                    header[9] == 0x45 &&
+                    header[10] == 0x42 &&
+                    header[11] == 0x50,
+
+                _ => false
+            };
         }
 
-        private void DeleteLocalImageFile(
-            string imageUrl)
+        private string GetWebRootPath()
         {
-            if (string.IsNullOrWhiteSpace(
-                    imageUrl))
+            return _environment.WebRootPath
+                   ?? Path.Combine(
+                       _environment.ContentRootPath,
+                       "wwwroot");
+        }
+
+        private void TryDeleteLocalImageFile(
+            string? imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
             {
                 return;
             }
@@ -472,37 +502,46 @@ namespace Darbak.Controllers
                     localPrefix,
                     StringComparison.OrdinalIgnoreCase))
             {
-                // Old external URL.
                 return;
             }
 
-            var fileName =
-                Path.GetFileName(
-                    imageUrl);
+            var fileName = Path.GetFileName(imageUrl);
 
-            if (string.IsNullOrWhiteSpace(
-                    fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
             {
                 return;
             }
 
-            var webRootPath =
-                _environment.WebRootPath
-                ?? Path.Combine(
-                    _environment.ContentRootPath,
-                    "wwwroot");
+            var physicalPath = Path.Combine(
+                GetWebRootPath(),
+                "images",
+                "products",
+                fileName);
 
-            var physicalPath =
-                Path.Combine(
-                    webRootPath,
-                    "images",
-                    "products",
-                    fileName);
+            TryDeletePhysicalFile(physicalPath);
+        }
 
-            if (System.IO.File.Exists(
-                    physicalPath))
+        private void TryDeletePhysicalFile(
+            string? physicalPath)
+        {
+            if (string.IsNullOrWhiteSpace(physicalPath))
             {
-                System.IO.File.Delete(
+                return;
+            }
+
+            try
+            {
+                if (System.IO.File.Exists(physicalPath))
+                {
+                    System.IO.File.Delete(physicalPath);
+                }
+            }
+            catch (Exception ex)
+                when (ex is IOException or UnauthorizedAccessException)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Could not delete local product image file {PhysicalPath}.",
                     physicalPath);
             }
         }

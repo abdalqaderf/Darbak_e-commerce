@@ -1,91 +1,70 @@
-﻿@model IEnumerable<Darbak.Models.Testimonial>
+@model IEnumerable<Darbak.Models.Testimonial>
 
 @{
     ViewData["Title"] = "Testimonials";
 }
 
-<div class="d-flex
-    justify-content-between
-    align-items-center
-    flex-wrap
-    gap-3
-    mb-4">
-    <h1>Testimonials</h1>
+<nav class="darbak-breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Home</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">Testimonials</span>
+</nav>
 
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a asp-action="Create"
-           class="btn btn-primary">
-            Add Testimonial
-        </a>
-    }
-
-</div>
-
-@if (!Model.Any())
-{
-    <div class="text-center
-        border
-        rounded
-        bg-light
-        p-5">
-
-        <h2 class="h4 mb-2">
-            No testimonials yet
-        </h2>
-
-        <p class="text-muted mb-3">
-            Approved customer testimonials will appear here.
-        </p>
+<section class="testimonials-page" aria-labelledby="testimonials-title">
+    <header class="page-heading-row">
+        <div>
+            <span class="section-eyebrow">Customer Feedback</span>
+            <h1 id="testimonials-title">What Our Customers Say</h1>
+            <p>Approved experiences shared by Darbak customers.</p>
+        </div>
 
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <a asp-action="Create"
-               class="btn btn-primary">
-                Add Testimonial
-            </a>
+            <a asp-action="Create" class="btn btn-primary">Share Your Experience</a>
         }
+    </header>
 
-    </div>
-}
-else
-{
-    <div class="row g-4">
-        @foreach (var testimonial in Model)
-        {
-            <div class="col-12 col-md-6">
-                <article class="card h-100 shadow-sm">
-                    <div class="card-body">
-
-                        <p class="card-text">
-                            @testimonial.Content
-                        </p>
-
-                        <hr />
-
-                        <div class="d-flex
-                            justify-content-between
-                            align-items-center
-                            flex-wrap
-                            gap-2">
+    @if (!Model.Any())
+    {
+        <div class="empty-state" role="status">
+            <div class="empty-state__mark" aria-hidden="true">“</div>
+            <h2>No testimonials yet</h2>
+            <p>Approved customer testimonials will appear here.</p>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-action="Create" class="btn btn-primary">Be the First to Share</a>
+            }
+            else
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-secondary">Sign In</a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="testimonials-page-grid">
+            @foreach (var testimonial in Model)
+            {
+                <article class="testimonial-page-card">
+                    <span class="testimonial-page-card__quote" aria-hidden="true">“</span>
+                    <blockquote>
+                        <p>@testimonial.Content</p>
+                    </blockquote>
+                    <footer>
+                        <div>
                             <strong>
-                                @(string.IsNullOrWhiteSpace(
-                                    testimonial.User.FullName)
+                                @(string.IsNullOrWhiteSpace(testimonial.User.FullName)
                                     ? testimonial.User.UserName
                                     : testimonial.User.FullName)
                             </strong>
-
-                            <small class="text-muted">
-                                @testimonial.CreatedAt.ToString("yyyy-MM-dd")
-                            </small>
-
+                            <span>Verified account</span>
                         </div>
-
-                    </div>
-
+                        <time datetime="@testimonial.CreatedAt.ToString("yyyy-MM-dd")">
+                            @testimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                        </time>
+                    </footer>
                 </article>
-            </div>
-        }
-
-    </div>
-}
+            }
+        </div>
+    }
+</section>

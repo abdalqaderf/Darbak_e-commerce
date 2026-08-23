@@ -4,12 +4,14 @@
 @{
     ViewData["Title"] = "My Orders";
 
-    var currentOrders = Model
+    var orders = Model.ToList();
+
+    var currentOrders = orders
         .Where(o => o.Status == OrderStatus.Processing)
         .OrderByDescending(o => o.OrderDate)
         .ToList();
 
-    var previousOrders = Model
+    var previousOrders = orders
         .Where(o =>
             o.Status == OrderStatus.Completed ||
             o.Status == OrderStatus.Cancelled)
@@ -17,339 +19,314 @@
         .ToList();
 }
 
-<h1 class="mb-4">My Orders</h1>
+<section class="orders-page">
+    <div class="container">
+        <nav class="orders-breadcrumb" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">My Orders</span>
+        </nav>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        You have not placed any orders yet.
-    </div>
+        <header class="orders-page-header">
+            <div>
+                <span class="orders-eyebrow">Order history</span>
+                <h1>My Orders</h1>
+                <p>Track current orders and review your previous purchases.</p>
+            </div>
 
-    <a asp-controller="Home"
-       asp-action="Index"
-       class="btn btn-secondary">
-        Back to Home
-    </a>
-}
-else
-{
-    <!-- ==========================================
-         CURRENT ORDERS
-         ========================================== -->
+            @if (orders.Any())
+            {
+                <a asp-controller="Catalog"
+                   asp-action="Index"
+                   class="btn btn-outline-dark">
+                    Continue Shopping
+                </a>
+            }
+        </header>
 
-    <div class="mb-5">
-
-        <div class="d-flex justify-content-between
-            align-items-center mb-3">
-
-            <h3 class="mb-0">
-                Current Orders
-            </h3>
-
-            <span class="badge bg-primary">
-                @currentOrders.Count
-            </span>
-
-        </div>
-
-        @if (!currentOrders.Any())
+        @if (!orders.Any())
         {
-            <div class="alert alert-light border">
-                You do not have any current orders.
+            <div class="orders-empty-state">
+                <div class="orders-empty-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2h9l3 3v17H6z" />
+                        <path d="M14 2v4h4" />
+                        <path d="M9 11h6" />
+                        <path d="M9 15h6" />
+                    </svg>
+                </div>
+
+                <h2>No orders yet</h2>
+                <p>Your orders will appear here after you complete your first purchase.</p>
+
+                <a asp-controller="Catalog"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Start Shopping
+                </a>
             </div>
         }
         else
         {
-            @foreach (var order in currentOrders)
-            {
-                <div class="card mb-3 shadow-sm">
-
-                    <div class="card-header
-                        d-flex
-                        justify-content-between
-                        align-items-center">
-
-                        <strong>
-                            Order #@order.Id
-                        </strong>
-
-                        <span>
-                            @order.OrderDate
-                            .ToLocalTime()
-                            .ToString("dd/MM/yyyy HH:mm")
-                        </span>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <p>
-                                    <strong>Status:</strong>
-
-                                    <span class="badge
-                                        bg-warning
-                                        text-dark">
-                                        Processing
-                                    </span>
-                                </p>
-
-                                <p>
-                                    <strong>
-                                        Payment:
-                                    </strong>
-
-                                    @if (order.PaymentStatus ==
-                                        PaymentStatus.Paid)
-                                    {
-                                        <span class="badge bg-success">
-                                            Paid
-                                        </span>
-                                    }
-                                    else if (order.PaymentStatus ==
-                                             PaymentStatus.Failed)
-                                    {
-                                        <span class="badge bg-danger">
-                                            Failed
-                                        </span>
-                                    }
-                                    else if (order.PaymentStatus ==
-                                             PaymentStatus.Refunded)
-                                    {
-                                        <span class="badge bg-info text-dark">
-                                            Refunded
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">
-                                            Pending
-                                        </span>
-                                    }
-
-                                </p>
-
-                                <p>
-                                    <strong>Items:</strong>
-
-                                    @order.OrderItems
-                                    .Sum(x => x.Quantity)
-                                </p>
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <p>
-                                    <strong>Shipping:</strong>
-
-                                    @order.ShippingAddress,
-                                    @order.City
-                                </p>
-
-                                <p>
-                                    <strong>Total:</strong>
-
-                                    @order.TotalAmount
-                                    .ToString("0.00")
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex
-                            flex-wrap
-                            gap-2
-                            mt-2">
-
-                            <a asp-action="Details"
-                               asp-route-id="@order.Id"
-                               class="btn btn-primary">
-                                View Details
-                            </a>
-
-                            <a asp-action="Invoice"
-                               asp-route-id="@order.Id"
-                               class="btn btn-outline-secondary">
-                                View Invoice
-                            </a>
-
-                        </div>
-
-                    </div>
-
+            <div class="orders-overview" aria-label="Orders overview">
+                <div class="orders-overview-card orders-overview-card-current">
+                    <span class="orders-overview-label">Current Orders</span>
+                    <strong>@currentOrders.Count</strong>
+                    <span>Processing</span>
                 </div>
-            }
-        }
 
-    </div>
+                <div class="orders-overview-card">
+                    <span class="orders-overview-label">Previous Orders</span>
+                    <strong>@previousOrders.Count</strong>
+                    <span>Completed or cancelled</span>
+                </div>
 
-
-    <!-- ==========================================
-         PREVIOUS ORDERS
-         ========================================== -->
-
-    <div>
-
-        <div class="d-flex justify-content-between
-            align-items-center mb-3">
-
-            <h3 class="mb-0">
-                Previous Orders
-            </h3>
-
-            <span class="badge bg-secondary">
-                @previousOrders.Count
-            </span>
-
-        </div>
-
-        @if (!previousOrders.Any())
-        {
-            <div class="alert alert-light border">
-                You do not have any previous orders.
+                <div class="orders-overview-card">
+                    <span class="orders-overview-label">Total Orders</span>
+                    <strong>@orders.Count</strong>
+                    <span>All purchases</span>
+                </div>
             </div>
-        }
-        else
-        {
-            @foreach (var order in previousOrders)
-            {
-                <div class="card mb-3 shadow-sm">
 
-                    <div class="card-header
-                        d-flex
-                        justify-content-between
-                        align-items-center">
-
-                        <strong>
-                            Order #@order.Id
-                        </strong>
-
-                        <span>
-                            @order.OrderDate
-                            .ToLocalTime()
-                            .ToString("dd/MM/yyyy HH:mm")
-                        </span>
-
+            <section class="orders-section" aria-labelledby="current-orders-title">
+                <div class="orders-section-heading">
+                    <div>
+                        <span class="orders-section-kicker">In progress</span>
+                        <h2 id="current-orders-title">Current Orders</h2>
                     </div>
 
-                    <div class="card-body">
-
-                        <div class="row">
-
-                            <div class="col-md-6">
-
-                                <p>
-                                    <strong>Status:</strong>
-
-                                    @if (order.Status ==
-                                        OrderStatus.Completed)
-                                    {
-                                        <span class="badge bg-success">
-                                            Completed
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">
-                                            Cancelled
-                                        </span>
-                                    }
-
-                                </p>
-
-                                <p>
-                                    <strong>
-                                        Payment:
-                                    </strong>
-
-                                    @if (order.PaymentStatus ==
-                                        PaymentStatus.Paid)
-                                    {
-                                        <span class="badge bg-success">
-                                            Paid
-                                        </span>
-                                    }
-                                    else if (order.PaymentStatus ==
-                                             PaymentStatus.Failed)
-                                    {
-                                        <span class="badge bg-danger">
-                                            Failed
-                                        </span>
-                                    }
-                                    else if (order.PaymentStatus ==
-                                             PaymentStatus.Refunded)
-                                    {
-                                        <span class="badge bg-info text-dark">
-                                            Refunded
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">
-                                            Pending
-                                        </span>
-                                    }
-
-                                </p>
-
-                                <p>
-                                    <strong>Items:</strong>
-
-                                    @order.OrderItems
-                                    .Sum(x => x.Quantity)
-                                </p>
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <p>
-                                    <strong>Shipping:</strong>
-
-                                    @order.ShippingAddress,
-                                    @order.City
-                                </p>
-
-                                <p>
-                                    <strong>Total:</strong>
-
-                                    @order.TotalAmount
-                                    .ToString("0.00")
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex
-                            flex-wrap
-                            gap-2
-                            mt-2">
-
-                            <a asp-action="Details"
-                               asp-route-id="@order.Id"
-                               class="btn btn-primary">
-                                View Details
-                            </a>
-
-                            <a asp-action="Invoice"
-                               asp-route-id="@order.Id"
-                               class="btn btn-outline-secondary">
-                                View Invoice
-                            </a>
-
-                        </div>
-
-                    </div>
-
+                    <span class="orders-count-badge">
+                        @currentOrders.Count @(currentOrders.Count == 1 ? "order" : "orders")
+                    </span>
                 </div>
-            }
-        }
 
+                @if (!currentOrders.Any())
+                {
+                    <div class="orders-section-empty">
+                        <div class="orders-section-empty-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 7h18" />
+                                <path d="M5 7l1 13h12l1-13" />
+                                <path d="M9 11v5" />
+                                <path d="M15 11v5" />
+                                <path d="M8 7l1-3h6l1 3" />
+                            </svg>
+                        </div>
+                        <div>
+                            <strong>No current orders</strong>
+                            <span>You do not have any orders being processed right now.</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="orders-list">
+                        @foreach (var order in currentOrders)
+                        {
+                            var itemCount = order.OrderItems.Sum(item => item.Quantity);
+
+                            <article class="order-card">
+                                <div class="order-card-top">
+                                    <div class="order-number-block">
+                                        <span>Order</span>
+                                        <h3>#@order.Id</h3>
+                                    </div>
+
+                                    <div class="order-card-date">
+                                        <span>Placed on</span>
+                                        <strong>@order.OrderDate.ToLocalTime().ToString("MMM dd, yyyy")</strong>
+                                        <small>@order.OrderDate.ToLocalTime().ToString("HH:mm")</small>
+                                    </div>
+                                </div>
+
+                                <div class="order-card-body">
+                                    <div class="order-card-main">
+                                        <div class="order-status-row">
+                                            <span class="order-status-badge order-status-processing">
+                                                <span class="order-status-dot" aria-hidden="true"></span>
+                                                Processing
+                                            </span>
+
+                                            @if (order.PaymentStatus == PaymentStatus.Paid)
+                                            {
+                                                <span class="order-status-badge order-payment-paid">Paid</span>
+                                            }
+                                            else if (order.PaymentStatus == PaymentStatus.Failed)
+                                            {
+                                                <span class="order-status-badge order-payment-failed">Failed</span>
+                                            }
+                                            else if (order.PaymentStatus == PaymentStatus.Refunded)
+                                            {
+                                                <span class="order-status-badge order-payment-refunded">Refunded</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="order-status-badge order-payment-pending">Payment Pending</span>
+                                            }
+                                        </div>
+
+                                        <div class="order-meta-grid">
+                                            <div class="order-meta-item">
+                                                <span>Items</span>
+                                                <strong>@itemCount</strong>
+                                            </div>
+
+                                            <div class="order-meta-item order-meta-shipping">
+                                                <span>Ship to</span>
+                                                <strong>@order.City</strong>
+                                                <small>@order.ShippingAddress</small>
+                                            </div>
+
+                                            <div class="order-meta-item order-meta-total">
+                                                <span>Order total</span>
+                                                <strong>@order.TotalAmount.ToString("0.00")</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="order-card-actions">
+                                        <a asp-action="Details"
+                                           asp-route-id="@order.Id"
+                                           class="btn btn-primary">
+                                            View Details
+                                        </a>
+
+                                        <a asp-action="Invoice"
+                                           asp-route-id="@order.Id"
+                                           class="btn btn-outline-dark">
+                                            View Invoice
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="orders-section orders-section-previous" aria-labelledby="previous-orders-title">
+                <div class="orders-section-heading">
+                    <div>
+                        <span class="orders-section-kicker">History</span>
+                        <h2 id="previous-orders-title">Previous Orders</h2>
+                    </div>
+
+                    <span class="orders-count-badge">
+                        @previousOrders.Count @(previousOrders.Count == 1 ? "order" : "orders")
+                    </span>
+                </div>
+
+                @if (!previousOrders.Any())
+                {
+                    <div class="orders-section-empty">
+                        <div class="orders-section-empty-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8v4l2.5 1.5" />
+                                <path d="M4.9 4.9A10 10 0 1 1 3 12" />
+                                <path d="M3 4v5h5" />
+                            </svg>
+                        </div>
+                        <div>
+                            <strong>No previous orders</strong>
+                            <span>Completed and cancelled orders will appear here.</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="orders-list">
+                        @foreach (var order in previousOrders)
+                        {
+                            var itemCount = order.OrderItems.Sum(item => item.Quantity);
+
+                            <article class="order-card">
+                                <div class="order-card-top">
+                                    <div class="order-number-block">
+                                        <span>Order</span>
+                                        <h3>#@order.Id</h3>
+                                    </div>
+
+                                    <div class="order-card-date">
+                                        <span>Placed on</span>
+                                        <strong>@order.OrderDate.ToLocalTime().ToString("MMM dd, yyyy")</strong>
+                                        <small>@order.OrderDate.ToLocalTime().ToString("HH:mm")</small>
+                                    </div>
+                                </div>
+
+                                <div class="order-card-body">
+                                    <div class="order-card-main">
+                                        <div class="order-status-row">
+                                            @if (order.Status == OrderStatus.Completed)
+                                            {
+                                                <span class="order-status-badge order-status-completed">
+                                                    <span class="order-status-dot" aria-hidden="true"></span>
+                                                    Completed
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="order-status-badge order-status-cancelled">
+                                                    <span class="order-status-dot" aria-hidden="true"></span>
+                                                    Cancelled
+                                                </span>
+                                            }
+
+                                            @if (order.PaymentStatus == PaymentStatus.Paid)
+                                            {
+                                                <span class="order-status-badge order-payment-paid">Paid</span>
+                                            }
+                                            else if (order.PaymentStatus == PaymentStatus.Failed)
+                                            {
+                                                <span class="order-status-badge order-payment-failed">Failed</span>
+                                            }
+                                            else if (order.PaymentStatus == PaymentStatus.Refunded)
+                                            {
+                                                <span class="order-status-badge order-payment-refunded">Refunded</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="order-status-badge order-payment-pending">Payment Pending</span>
+                                            }
+                                        </div>
+
+                                        <div class="order-meta-grid">
+                                            <div class="order-meta-item">
+                                                <span>Items</span>
+                                                <strong>@itemCount</strong>
+                                            </div>
+
+                                            <div class="order-meta-item order-meta-shipping">
+                                                <span>Ship to</span>
+                                                <strong>@order.City</strong>
+                                                <small>@order.ShippingAddress</small>
+                                            </div>
+
+                                            <div class="order-meta-item order-meta-total">
+                                                <span>Order total</span>
+                                                <strong>@order.TotalAmount.ToString("0.00")</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="order-card-actions">
+                                        <a asp-action="Details"
+                                           asp-route-id="@order.Id"
+                                           class="btn btn-primary">
+                                            View Details
+                                        </a>
+
+                                        <a asp-action="Invoice"
+                                           asp-route-id="@order.Id"
+                                           class="btn btn-outline-dark">
+                                            View Invoice
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
     </div>
-}
+</section>

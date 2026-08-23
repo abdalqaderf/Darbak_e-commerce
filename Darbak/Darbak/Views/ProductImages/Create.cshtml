@@ -1,80 +1,101 @@
-﻿@model Darbak.ViewModels.ProductImageCreateViewModel
+@model Darbak.ViewModels.ProductImageCreateViewModel
 
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Add Product Image";
 }
 
-<h1>Add Image</h1>
+<div class="admin-page-heading">
+    <div>
+        <span class="admin-page-heading__eyebrow">
+            Catalog
+        </span>
 
-<h4>@ViewBag.ProductName</h4>
+        <h1>Add Product Image</h1>
 
-<hr />
-
-<form asp-action="Create"
-      method="post"
-      enctype="multipart/form-data">
-
-    <input asp-for="ProductId"
-           type="hidden" />
-
-    <div asp-validation-summary="ModelOnly"
-         class="text-danger mb-3">
+        <p>
+            Upload a secure product image for
+            <strong>@ViewBag.ProductName</strong>.
+        </p>
     </div>
-
-    <div class="mb-3">
-
-        <label for="imageFile"
-               class="form-label">
-            Product Image
-        </label>
-
-        <input type="file"
-               id="imageFile"
-               name="imageFile"
-               class="form-control"
-               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-               required />
-
-        @Html.ValidationMessage(
-            "imageFile",
-            null,
-            new { @class = "text-danger" })
-
-        <div class="form-text">
-            Allowed formats: JPG, JPEG, PNG, WebP.
-            Maximum size: 5 MB.
-        </div>
-
-    </div>
-
-    <div class="form-check mb-3">
-
-        <input asp-for="IsMain"
-               class="form-check-input" />
-
-        <label asp-for="IsMain"
-               class="form-check-label">
-        </label>
-
-    </div>
-
-    <div class="alert alert-info">
-        If this is the first image for the product,
-        it will automatically become the main image.
-    </div>
-
-    <button type="submit"
-            class="btn btn-primary">
-        Upload Image
-    </button>
 
     <a asp-action="Index"
        asp-route-productId="@Model.ProductId"
-       class="btn btn-secondary">
-        Cancel
+       class="btn btn-outline-secondary">
+        Back to Images
     </a>
+</div>
 
-</form>
+<section class="admin-form-card">
+    <form asp-action="Create"
+          method="post"
+          enctype="multipart/form-data">
+
+        <input asp-for="ProductId"
+               type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary-errors"
+             role="alert">
+        </div>
+
+        <div class="admin-form-grid">
+            <div class="admin-form-field admin-form-field--full">
+
+                <label asp-for="ImageFile"
+                       class="form-label">
+                </label>
+
+                <input asp-for="ImageFile"
+                       class="form-control"
+                       type="file"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                <span asp-validation-for="ImageFile"
+                      class="text-danger">
+                </span>
+
+                <small>
+                    Allowed formats: JPG, JPEG, PNG and WebP.
+                    Maximum file size: 5 MB.
+                </small>
+            </div>
+
+            <div class="admin-form-field admin-form-field--full admin-form-field--toggle">
+
+                <div class="form-check form-switch">
+
+                    <input asp-for="IsMain"
+                           class="form-check-input" />
+
+                    <label asp-for="IsMain"
+                           class="form-check-label">
+                        Use as the main product image
+                    </label>
+                </div>
+
+                <small>
+                    The first image uploaded for a product becomes
+                    the main image automatically.
+                </small>
+            </div>
+        </div>
+
+        <div class="admin-form-actions">
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Upload Image
+            </button>
+
+            <a asp-action="Index"
+               asp-route-productId="@Model.ProductId"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

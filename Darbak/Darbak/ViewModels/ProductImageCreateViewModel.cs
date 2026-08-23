@@ -2,22 +2,18 @@
 
 namespace Darbak.ViewModels
 {
-    public class ProductImageCreateViewModel
+    public sealed class ProductImageCreateViewModel
     {
         [Range(
             1,
             int.MaxValue,
-            ErrorMessage = "Invalid product."
-        )]
+            ErrorMessage = "Invalid product.")]
         public int ProductId { get; set; }
 
-        [Required]
-        [StringLength(
-            2048,
-            ErrorMessage = "Image URL is too long."
-        )]
-        [Display(Name = "Image URL")]
-        public string ImageUrl { get; set; } = null!;
+        [Required(
+            ErrorMessage = "Please select an image.")]
+        [Display(Name = "Product Image")]
+        public IFormFile? ImageFile { get; set; }
 
         [Display(Name = "Main Image")]
         public bool IsMain { get; set; }

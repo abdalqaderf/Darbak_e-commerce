@@ -1,246 +1,211 @@
-﻿@using Darbak.Models.Enums
+@using Darbak.Models.Enums
 @model Darbak.Models.Order
 
 @{
     ViewData["Title"] = $"Order #{Model.Id}";
+
+    var orderStatusClass = Model.Status switch
+    {
+        OrderStatus.Completed => "order-status-completed",
+        OrderStatus.Cancelled => "order-status-cancelled",
+        _ => "order-status-processing"
+    };
+
+    var paymentStatusClass = Model.PaymentStatus switch
+    {
+        PaymentStatus.Paid => "order-payment-paid",
+        PaymentStatus.Failed => "order-payment-failed",
+        PaymentStatus.Refunded => "order-payment-refunded",
+        _ => "order-payment-pending"
+    };
 }
 
-<div class="d-flex
-    justify-content-between
-    align-items-start
-    flex-wrap
-    gap-3
-    mb-4">
+<div class="order-details-page">
 
-    <div>
+    <nav class="page-breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-action="Index">My Orders</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Order #@Model.Id
+            </li>
+        </ol>
+    </nav>
 
-        <h1 class="h2 mb-1">
-            Order #@Model.Id
-        </h1>
+    <header class="order-details-header">
+        <div>
+            <span class="section-kicker">Order details</span>
+            <h1>Order #@Model.Id</h1>
+            <p>
+                Placed on
+                <time datetime="@Model.OrderDate.ToString("O")">
+                    @Model.OrderDate.ToLocalTime().ToString("MMMM dd, yyyy 'at' HH:mm")
+                </time>
+            </p>
+        </div>
 
-        <p class="text-muted mb-0">
-            @Model.OrderDate
-            .ToLocalTime()
-            .ToString("dd/MM/yyyy HH:mm")
-        </p>
-
-    </div>
-
-    <div class="d-flex gap-2 flex-wrap">
-
-        @if (Model.Status == OrderStatus.Processing)
-        {
-            <span class="badge bg-warning text-dark"
-                  role="status">
-                Processing
+        <div class="order-status-row order-details-statuses" aria-label="Order statuses">
+            <span class="order-status-badge @orderStatusClass">
+                <span class="order-status-dot" aria-hidden="true"></span>
+                @Model.Status
             </span>
-        }
-        else if (Model.Status == OrderStatus.Completed)
-        {
-            <span class="badge bg-success"
-                  role="status">
-                Completed
+
+            <span class="order-status-badge @paymentStatusClass">
+                <span class="order-status-dot" aria-hidden="true"></span>
+                @(Model.PaymentStatus == PaymentStatus.Pending ? "Payment Pending" : Model.PaymentStatus.ToString())
             </span>
-        }
-        else
-        {
-            <span class="badge bg-danger"
-                  role="status">
-                Cancelled
-            </span>
-        }
+        </div>
+    </header>
 
-        @switch (Model.PaymentStatus)
-        {
-            case PaymentStatus.Paid:
-                <span class="badge bg-success"
-                      role="status">
-                    Paid
-                </span>
-                break;
+    <div class="order-details-grid">
+        <div class="order-details-main">
 
-            case PaymentStatus.Failed:
-                <span class="badge bg-danger"
-                      role="status">
-                    Payment Failed
-                </span>
-                break;
+            <section class="order-info-card" aria-labelledby="order-information-heading">
+                <div class="order-info-card-header">
+                    <div class="order-info-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                            <path d="M7 3h10a2 2 0 0 1 2 2v16l-3-1.6L13 21l-3-1.6L7 21 5 19.9V5a2 2 0 0 1 2-2Zm0 2v12.55l3-1.65 3 1.65 3-1.65 1 .55V5H7Zm2 3h6v2H9V8Zm0 4h6v2H9v-2Z" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 id="order-information-heading">Order Information</h2>
+                        <p>Key information for this order.</p>
+                    </div>
+                </div>
 
-            case PaymentStatus.Refunded:
-                <span class="badge bg-info text-dark"
-                      role="status">
-                    Refunded
-                </span>
-                break;
+                <dl class="order-details-definition-grid">
+                    <div>
+                        <dt>Order Number</dt>
+                        <dd>#@Model.Id</dd>
+                    </div>
+                    <div>
+                        <dt>Order Date</dt>
+                        <dd>@Model.OrderDate.ToLocalTime().ToString("MMM dd, yyyy")</dd>
+                    </div>
+                    <div>
+                        <dt>Order Status</dt>
+                        <dd>@Model.Status</dd>
+                    </div>
+                    <div>
+                        <dt>Payment Status</dt>
+                        <dd>@Model.PaymentStatus</dd>
+                    </div>
+                </dl>
+            </section>
 
-            default:
-                <span class="badge bg-secondary"
-                      role="status">
-                    Payment Pending
-                </span>
-                break;
-        }
+            <section class="order-info-card" aria-labelledby="shipping-information-heading">
+                <div class="order-info-card-header">
+                    <div class="order-info-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                            <path d="M12 2a7 7 0 0 1 7 7c0 5.2-7 13-7 13S5 14.2 5 9a7 7 0 0 1 7-7Zm0 2a5 5 0 0 0-5 5c0 3.25 3.45 8.05 5 10.05C13.55 17.05 17 12.25 17 9a5 5 0 0 0-5-5Zm0 2.5A2.5 2.5 0 1 1 12 11a2.5 2.5 0 0 1 0-5Zm0 2a.5.5 0 1 0 0 1 .5.5 0 0 0 0-1Z" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 id="shipping-information-heading">Shipping Information</h2>
+                        <p>Delivery information provided at checkout.</p>
+                    </div>
+                </div>
 
-    </div>
+                <dl class="order-details-definition-grid order-shipping-grid">
+                    <div>
+                        <dt>Address</dt>
+                        <dd>@Model.ShippingAddress</dd>
+                    </div>
+                    <div>
+                        <dt>City</dt>
+                        <dd>@Model.City</dd>
+                    </div>
+                    <div>
+                        <dt>Phone Number</dt>
+                        <dd>@Model.PhoneNumber</dd>
+                    </div>
+                </dl>
+            </section>
 
-</div>
+            <section class="order-products-card" aria-labelledby="order-products-heading">
+                <div class="order-products-card-header">
+                    <div>
+                        <span class="section-kicker">Order items</span>
+                        <h2 id="order-products-heading">Products</h2>
+                    </div>
+                    <span class="order-products-count">
+                        @Model.OrderItems.Sum(item => item.Quantity)
+                        @(Model.OrderItems.Sum(item => item.Quantity) == 1 ? "item" : "items")
+                    </span>
+                </div>
 
-<section class="card shadow-sm mb-4"
-         aria-labelledby="shipping-details-heading">
-
-    <div class="card-header">
-
-        <h2 id="shipping-details-heading"
-            class="h5 mb-0">
-            Shipping Information
-        </h2>
-
-    </div>
-
-    <div class="card-body">
-
-        <dl class="row mb-0">
-
-            <dt class="col-sm-3">
-                Address
-            </dt>
-
-            <dd class="col-sm-9">
-                @Model.ShippingAddress
-            </dd>
-
-            <dt class="col-sm-3">
-                City
-            </dt>
-
-            <dd class="col-sm-9">
-                @Model.City
-            </dd>
-
-            <dt class="col-sm-3">
-                Phone
-            </dt>
-
-            <dd class="col-sm-9 mb-0">
-                @Model.PhoneNumber
-            </dd>
-
-        </dl>
-
-    </div>
-
-</section>
-
-<section aria-labelledby="order-products-heading">
-
-    <h2 id="order-products-heading"
-        class="h4 mb-3">
-        Products
-    </h2>
-
-    <div class="table-responsive">
-
-        <table class="table
-            table-bordered
-            align-middle">
-
-            <caption class="visually-hidden">
-                Products included in order @Model.Id
-            </caption>
-
-            <thead class="table-light">
-
-                <tr>
-
-                    <th scope="col">
-                        Product
-                    </th>
-
-                    <th scope="col"
-                        class="text-end">
-                        Unit Price
-                    </th>
-
-                    <th scope="col"
-                        class="text-center">
-                        Quantity
-                    </th>
-
-                    <th scope="col"
-                        class="text-end">
-                        Total
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @foreach (var item in Model.OrderItems)
+                @if (!Model.OrderItems.Any())
                 {
-                    <tr>
-
-                        <td>
-                            @item.ProductName
-                        </td>
-
-                        <td class="text-end text-nowrap">
-                            @item.UnitPrice.ToString("0.00")
-                        </td>
-
-                        <td class="text-center">
-                            @item.Quantity
-                        </td>
-
-                        <td class="text-end text-nowrap">
-                            @((item.UnitPrice * item.Quantity)
-                                .ToString("0.00"))
-                        </td>
-
-                    </tr>
+                    <div class="empty-state compact-empty-state">
+                        <div class="empty-state-icon" aria-hidden="true">!</div>
+                        <h3>No products found</h3>
+                        <p>This order does not contain any product items.</p>
+                    </div>
                 }
+                else
+                {
+                    <div class="table-responsive order-details-table-wrap" tabindex="0">
+                        <table class="table order-details-table align-middle mb-0">
+                            <caption class="visually-hidden">Products included in order @Model.Id</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Product</th>
+                                    <th scope="col" class="text-end">Unit Price</th>
+                                    <th scope="col" class="text-center">Quantity</th>
+                                    <th scope="col" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong class="order-product-name">@item.ProductName</strong>
+                                        </td>
+                                        <td class="text-end text-nowrap">@item.UnitPrice.ToString("0.00")</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end text-nowrap fw-bold">
+                                            @((item.UnitPrice * item.Quantity).ToString("0.00"))
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
 
-            </tbody>
+        <aside class="order-details-sidebar" aria-label="Order summary">
+            <div class="order-summary-panel">
+                <span class="section-kicker">Summary</span>
+                <h2>Order Summary</h2>
 
-            <tfoot>
+                <div class="order-summary-line">
+                    <span>Items</span>
+                    <strong>@Model.OrderItems.Sum(item => item.Quantity)</strong>
+                </div>
 
-                <tr>
+                <div class="order-summary-total">
+                    <span>Grand Total</span>
+                    <strong>@Model.TotalAmount.ToString("0.00")</strong>
+                </div>
 
-                    <th colspan="3"
-                        scope="row"
-                        class="text-end">
-                        Order Total
-                    </th>
+                <a asp-action="Invoice"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-primary btn-lg w-100">
+                    View Invoice
+                </a>
 
-                    <th class="text-end text-nowrap">
-                        @Model.TotalAmount.ToString("0.00")
-                    </th>
-
-                </tr>
-
-            </tfoot>
-
-        </table>
-
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary w-100">
+                    Back to My Orders
+                </a>
+            </div>
+        </aside>
     </div>
-
-</section>
-
-<div class="d-grid
-    gap-2
-    d-sm-flex
-    mt-4">
-
-    <a asp-action="Invoice"
-       asp-route-id="@Model.Id"
-       class="btn btn-primary">
-        View Invoice
-    </a>
-
-    <a asp-action="Index"
-       class="btn btn-outline-secondary">
-        Back to My Orders
-    </a>
-
 </div>

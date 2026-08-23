@@ -1,28 +1,24 @@
 @{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout !=  null)
-    {
-        Layout = parentLayout.ToString();
-    }
-    else
-    {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
-    }
+    Layout = "/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Manage your account</h1>
+<section class="account-manage-page" aria-labelledby="account-manage-title">
+    <header class="account-manage-heading">
+        <span class="section-eyebrow">Your Account</span>
+        <h1 id="account-manage-title">Account Settings</h1>
+        <p>Manage your profile, sign-in options, security, and personal data.</p>
+    </header>
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
+    <div class="account-manage-shell">
+        <aside class="account-manage-sidebar">
             <partial name="_ManageNav" />
-        </div>
-        <div class="col-md-9">
+        </aside>
+
+        <div class="account-manage-content">
             @RenderBody()
         </div>
     </div>
-</div>
+</section>
 
 @section Scripts {
     @RenderSection("Scripts", required: false)

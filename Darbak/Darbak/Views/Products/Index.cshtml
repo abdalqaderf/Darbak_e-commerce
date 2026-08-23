@@ -1,390 +1,128 @@
-﻿@model IEnumerable<Darbak.Models.Product>
+@model IEnumerable<Darbak.Models.Product>
 
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Products";
 
-    var categories =
-        ViewBag.Categories
-            as IEnumerable<Darbak.Models.Category>
+    var categories = ViewBag.Categories as IEnumerable<Darbak.Models.Category>
         ?? Enumerable.Empty<Darbak.Models.Category>();
+    var search = ViewBag.Search as string;
+    var selectedIsActive = ViewBag.IsActive as string;
+    var selectedStockStatus = ViewBag.StockStatus as string;
+    int? selectedCategoryId = ViewBag.CategoryId != null ? (int)ViewBag.CategoryId : null;
+}
 
-    var search =
-        ViewBag.Search as string;
+<div class="admin-page-heading">
+    <div>
+        <span class="admin-page-heading__eyebrow">Catalog</span>
+        <h1>Products</h1>
+        <p>Manage pricing, inventory, visibility, categories, and product images.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Add Product</a>
+</div>
 
-    var selectedIsActive =
-        ViewBag.IsActive as string;
+<section class="admin-filter-panel" aria-labelledby="product-filters-title">
+    <div class="admin-filter-panel__header">
+        <div><span>Filters</span><h2 id="product-filters-title">Find Products</h2></div>
+        <span class="admin-result-count">@Model.Count() result(s)</span>
+    </div>
+    <form asp-action="Index" method="get" class="admin-filter-grid">
+        <div class="admin-filter-field admin-filter-field--wide">
+            <label for="search">Product Name</label>
+            <input type="search" id="search" name="search" value="@search" class="form-control" placeholder="Search products" autocomplete="off" />
+        </div>
+        <div class="admin-filter-field">
+            <label for="categoryId">Category</label>
+            <select id="categoryId" name="categoryId" class="form-select">
+                <option value="">All Categories</option>
+                @foreach (var category in categories)
+                {
+                    if (selectedCategoryId == category.Id)
+                    {
+                        <option value="@category.Id" selected>@category.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="admin-filter-field">
+            <label for="isActive">Status</label>
+            <select id="isActive" name="isActive" class="form-select">
+                <option value="">All Statuses</option>
+                @if (selectedIsActive == "true") { <option value="true" selected>Active</option> } else { <option value="true">Active</option> }
+                @if (selectedIsActive == "false") { <option value="false" selected>Inactive</option> } else { <option value="false">Inactive</option> }
+            </select>
+        </div>
+        <div class="admin-filter-field">
+            <label for="stockStatus">Stock</label>
+            <select id="stockStatus" name="stockStatus" class="form-select">
+                <option value="">All Stock</option>
+                @if (selectedStockStatus == "in_stock") { <option value="in_stock" selected>In Stock</option> } else { <option value="in_stock">In Stock</option> }
+                @if (selectedStockStatus == "out_of_stock") { <option value="out_of_stock" selected>Out of Stock</option> } else { <option value="out_of_stock">Out of Stock</option> }
+            </select>
+        </div>
+        <div class="admin-filter-actions">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+</section>
 
-    var selectedStockStatus =
-        ViewBag.StockStatus as string;
+<section class="admin-panel" aria-labelledby="products-table-title">
+    <div class="admin-panel__header">
+        <div><span class="admin-panel__eyebrow">Inventory</span><h2 id="products-table-title">Product List</h2></div>
+    </div>
 
-    int? selectedCategoryId = null;
-
-    if (ViewBag.CategoryId != null)
+    @if (!Model.Any())
     {
-        selectedCategoryId =
-            (int)ViewBag.CategoryId;
+        <div class="admin-empty-state">
+            <strong>No products found</strong>
+            <span>No products match the selected filters.</span>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Clear Filters</a>
+        </div>
     }
-}
-
-<h1 class="mb-4">
-    Products
-</h1>
-
-<div class="card mb-4">
-
-    <div class="card-header">
-        <strong>
-            Filter Products
-        </strong>
-    </div>
-
-    <div class="card-body">
-
-        <form asp-action="Index"
-              method="get">
-
-            <div class="row g-3">
-
-                <div class="col-md-4">
-
-                    <label for="search"
-                           class="form-label">
-                        Product Name
-                    </label>
-
-                    <input type="text"
-                           id="search"
-                           name="search"
-                           value="@search"
-                           class="form-control"
-                           placeholder="Search by product name" />
-
-                </div>
-
-                <div class="col-md-3">
-
-                    <label for="categoryId"
-                           class="form-label">
-                        Category
-                    </label>
-
-                    <select id="categoryId"
-                            name="categoryId"
-                            class="form-select">
-
-                        <option value="">
-                            All Categories
-                        </option>
-
-                        @foreach (var category in categories)
-                        {
-                            if (selectedCategoryId ==
-                                category.Id)
-                            {
-                                <option value="@category.Id"
-                                        selected>
-                                    @category.Name
-                                </option>
-                            }
-                            else
-                            {
-                                <option value="@category.Id">
-                                    @category.Name
-                                </option>
-                            }
-                        }
-
-                    </select>
-
-                </div>
-
-                <div class="col-md-2">
-
-                    <label for="isActive"
-                           class="form-label">
-                        Status
-                    </label>
-
-                    <select id="isActive"
-                            name="isActive"
-                            class="form-select">
-
-                        <option value="">
-                            All
-                        </option>
-
-                        @if (selectedIsActive == "true")
-                        {
-                            <option value="true"
-                                    selected>
-                                Active
-                            </option>
-                        }
-                        else
-                        {
-                            <option value="true">
-                                Active
-                            </option>
-                        }
-
-                        @if (selectedIsActive == "false")
-                        {
-                            <option value="false"
-                                    selected>
-                                Inactive
-                            </option>
-                        }
-                        else
-                        {
-                            <option value="false">
-                                Inactive
-                            </option>
-                        }
-
-                    </select>
-
-                </div>
-
-                <div class="col-md-3">
-
-                    <label for="stockStatus"
-                           class="form-label">
-                        Stock
-                    </label>
-
-                    <select id="stockStatus"
-                            name="stockStatus"
-                            class="form-select">
-
-                        <option value="">
-                            All Stock
-                        </option>
-
-                        @if (selectedStockStatus ==
-                            "in_stock")
-                        {
-                            <option value="in_stock"
-                                    selected>
-                                In Stock
-                            </option>
-                        }
-                        else
-                        {
-                            <option value="in_stock">
-                                In Stock
-                            </option>
-                        }
-
-                        @if (selectedStockStatus ==
-                            "out_of_stock")
-                        {
-                            <option value="out_of_stock"
-                                    selected>
-                                Out of Stock
-                            </option>
-                        }
-                        else
-                        {
-                            <option value="out_of_stock">
-                                Out of Stock
-                            </option>
-                        }
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <div class="d-flex gap-2 mt-4">
-
-                <button type="submit"
-                        class="btn btn-primary">
-                    Apply Filters
-                </button>
-
-                <a asp-action="Index"
-                   class="btn btn-outline-secondary">
-                    Reset Filters
-                </a>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-<div class="d-flex
-    justify-content-between
-    align-items-center
-    flex-wrap
-    gap-2
-    mb-3">
-
-    <a asp-action="Create"
-       class="btn btn-primary">
-        Add Product
-    </a>
-
-    <span class="badge bg-secondary">
-        @Model.Count() result(s)
-    </span>
-
-</div>
-
-@if (!Model.Any())
-{
-    <div class="text-center
-        border
-        rounded
-        bg-light
-        p-4">
-
-        <h2 class="h5 mb-2">
-            No products found
-        </h2>
-
-        <p class="text-muted mb-3">
-            No products match the selected filters.
-        </p>
-
-        <a asp-action="Index"
-           class="btn btn-outline-primary">
-            Clear Filters
-        </a>
-
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-
-        <table class="table
-            table-bordered
-            table-hover
-            align-middle">
-            <caption class="visually-hidden">
-                Products available for administration
-            </caption>
-            <thead>
-
-                <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Stock</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Actions</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
+    else
+    {
+        <div class="table-responsive" tabindex="0">
+            <table class="table admin-table align-middle mb-0"><caption class="visually-hidden">Store products</caption>
+                <thead>
+                    <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
                 @foreach (var product in Model)
                 {
                     <tr>
-
                         <td>
-                            @product.Id
+                            <strong>@product.Name</strong>
+                            <small>Created @product.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small>
                         </td>
-
+                        <td>@product.Category.Name</td>
+                        <td><strong>@product.Price.ToString("0.00")</strong></td>
                         <td>
-                            @product.Name
-                        </td>
-
-                        <td>
-                            @product.Price.ToString("0.00")
-                        </td>
-
-                        <td>
-
-                            @if (product.StockQuantity == 0)
-                            {
-                                <span class="badge bg-danger">
-                                    Out of Stock
-                                </span>
-                            }
-                            else
-                            {
+                            <span class="@(product.StockQuantity == 0 ? "status-badge status-badge--danger" : product.StockQuantity <= 5 ? "status-badge status-badge--warning" : "status-badge status-badge--success")">
                                 @product.StockQuantity
-                            }
-
+                            </span>
                         </td>
-
                         <td>
-                            @product.Category.Name
+                            <span class="@(product.IsActive ? "status-badge status-badge--success" : "status-badge status-badge--muted")">
+                                @(product.IsActive ? "Active" : "Inactive")
+                            </span>
                         </td>
-
-                        <td>
-
-                            @if (product.IsActive)
-                            {
-                                <span class="badge bg-success">
-                                    Active
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    Inactive
-                                </span>
-                            }
-
-                        </td>
-
-                        <td>
-
-                            <div class="d-flex
-                                flex-wrap
-                                gap-1">
-
-                                <a asp-action="Edit"
-                                   asp-route-id="@product.Id"
-                                   class="btn
-                                    btn-warning
-                                    btn-sm">
-                                    Edit
-                                </a>
-
-                                <a asp-action="Delete"
-                                   asp-route-id="@product.Id"
-                                   class="btn
-                                    btn-danger
-                                    btn-sm">
-                                    Delete
-                                </a>
-
-                                <a asp-action="Details"
-                                   asp-route-id="@product.Id"
-                                   class="btn
-                                    btn-info
-                                    btn-sm">
-                                    Details
-                                </a>
-
-                                <a asp-controller="ProductImages"
-                                   asp-action="Index"
-                                   asp-route-productId="@product.Id"
-                                   class="btn
-                                    btn-secondary
-                                    btn-sm">
-                                    Images
-                                </a>
-
+                        <td class="text-end">
+                            <div class="admin-actions">
+                                <a asp-action="Details" asp-route-id="@product.Id" class="admin-table-action">View</a>
+                                <a asp-action="Edit" asp-route-id="@product.Id" class="admin-table-action">Edit</a>
+                                <a asp-controller="ProductImages" asp-action="Index" asp-route-productId="@product.Id" class="admin-table-action">Images</a>
+                                <a asp-action="Delete" asp-route-id="@product.Id" class="admin-table-action admin-table-action--danger">Delete</a>
                             </div>
-
                         </td>
-
                     </tr>
                 }
-
-            </tbody>
-
-        </table>
-
-    </div>
-}
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

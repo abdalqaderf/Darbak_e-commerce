@@ -10,307 +10,385 @@
 
     var mainImage = images.FirstOrDefault();
 
-    var averageRating = Model.Reviews.Any()
-        ? Model.Reviews.Average(r => r.Rating)
+    var approvedReviews = Model.Reviews
+        .OrderByDescending(r => r.CreatedAt)
+        .ToList();
+
+    var averageRating = approvedReviews.Any()
+        ? approvedReviews.Average(r => r.Rating)
         : 0;
+
+    var reviewCount = approvedReviews.Count;
 }
 
-<div class="row">
+<div class="product-details-page">
+    <div class="container">
 
-    <!-- Product Images -->
-    <div class="col-md-6 mb-4">
+        <nav class="darbak-breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li>
+                    <a asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                <li>
+                    <a asp-controller="Catalog" asp-action="Index">Shop</a>
+                </li>
+                <li>
+                    <a asp-controller="Catalog"
+                       asp-action="Index"
+                       asp-route-categoryId="@Model.CategoryId">
+                        @Model.Category.Name
+                    </a>
+                </li>
+                <li aria-current="page">@Model.Name</li>
+            </ol>
+        </nav>
 
-        @if (mainImage != null)
-        {
-            <img src="@mainImage.ImageUrl"
-                 alt="@Model.Name"
-                 class="img-fluid rounded border w-100"
-                 style="max-height: 450px;
-            object-fit: contain;" />
+        <div class="product-details-shell">
 
-            @if (images.Count > 1)
-            {
-                <div class="row mt-3">
-
-                    @foreach (var image in images)
+            <section class="product-gallery" aria-label="Product images">
+                <div class="product-main-media">
+                    @if (mainImage != null)
                     {
-                        <div class="col-3 mb-2">
-
-                            <img src="@image.ImageUrl"
-                                 alt="@Model.Name"
-                                 class="img-fluid rounded border"
-                                 style="width: 100%;
-                            height: 90px;
-                            object-fit: cover;" />
-
-                            @if (image.IsMain)
-                            {
-                                <div class="text-center mt-1">
-                                    <span class="badge bg-success">
-                                        Main
-                                    </span>
-                                </div>
-                            }
-
+                        <img id="product-main-image"
+                             src="@mainImage.ImageUrl"
+                             alt="@Model.Name"
+                             class="product-main-image" />
+                    }
+                    else
+                    {
+                        <div class="product-image-placeholder" role="img" aria-label="No image available for @Model.Name">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM5 5h14v9.1l-3.2-3.2a1 1 0 0 0-1.4 0l-2.3 2.3-1.3-1.3a1 1 0 0 0-1.4 0L5 16.3V5Zm0 14 5.1-5.1 1.3 1.3a1 1 0 0 0 1.4 0l2.3-2.3 3.9 3.9V19H5Z" />
+                                <path d="M8.5 10A1.5 1.5 0 1 0 8.5 7a1.5 1.5 0 0 0 0 3Z" />
+                            </svg>
+                            <span>No image available</span>
                         </div>
                     }
-
                 </div>
-            }
-        }
-        else
-        {
-            <div class="bg-light border rounded
-                d-flex align-items-center
-                justify-content-center
-                text-muted"
-                 style="height: 400px;">
 
-                No Image Available
+                @if (images.Count > 1)
+                {
+                    <div class="product-thumbnail-list" aria-label="Choose product image">
+                        @foreach (var image in images)
+                        {
+                            <button type="button"
+                                    class="product-thumbnail @(image.Id == mainImage?.Id ? "is-active" : string.Empty)"
+                                    data-product-thumbnail
+                                    data-image-url="@image.ImageUrl"
+                                    data-image-alt="@Model.Name"
+                                    aria-label="View image of @Model.Name"
+                                    aria-pressed="@(image.Id == mainImage?.Id ? "true" : "false")">
+                                <img src="@image.ImageUrl"
+                                     alt=""
+                                     loading="lazy" />
 
+                                @if (image.IsMain)
+                                {
+                                    <span class="product-thumbnail-main">Main</span>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="product-purchase-panel" aria-labelledby="product-title">
+                <div class="product-category-label">
+                    <a asp-controller="Catalog"
+                       asp-action="Index"
+                       asp-route-categoryId="@Model.CategoryId">
+                        @Model.Category.Name
+                    </a>
+                </div>
+
+                <h1 id="product-title" class="product-details-title">
+                    @Model.Name
+                </h1>
+
+                <div class="product-rating-row">
+                    @if (reviewCount > 0)
+                    {
+                        <div class="product-rating-stars"
+                             aria-label="Average rating @averageRating.ToString("0.0") out of 5">
+                            @for (var star = 1; star <= 5; star++)
+                            {
+                                <span class="@(star <= Math.Round(averageRating) ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                            }
+                        </div>
+
+                        <a href="#customer-reviews" class="product-rating-link">
+                            @averageRating.ToString("0.0")
+                            <span>·</span>
+                            @reviewCount @(reviewCount == 1 ? "review" : "reviews")
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="product-no-rating">No reviews yet</span>
+                    }
+                </div>
+
+                <div class="product-details-price">
+                    @Model.Price.ToString("0.00")
+                </div>
+
+                <div class="product-stock-row">
+                    @if (!Model.IsActive)
+                    {
+                        <span class="stock-pill stock-pill-inactive">
+                            <span class="stock-dot" aria-hidden="true"></span>
+                            Inactive product
+                        </span>
+                    }
+                    else if (Model.StockQuantity <= 0)
+                    {
+                        <span class="stock-pill stock-pill-out">
+                            <span class="stock-dot" aria-hidden="true"></span>
+                            Out of stock
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="stock-pill stock-pill-in">
+                            <span class="stock-dot" aria-hidden="true"></span>
+                            In stock
+                        </span>
+                        <span class="product-stock-count">
+                            @Model.StockQuantity available
+                        </span>
+                    }
+                </div>
+
+                <div class="product-summary-copy">
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        <p>@Model.Description</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Product description is not available yet.</p>
+                    }
+                </div>
+
+                <div class="product-action-panel">
+                    @if (Model.IsActive && Model.StockQuantity > 0)
+                    {
+                        <form asp-controller="Cart"
+                              asp-action="AddToCart"
+                              method="post"
+                              class="product-cart-form">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+
+                            <button type="submit" class="btn btn-primary btn-lg product-add-cart-btn">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM6.2 6l.7 4H18l1.4-4H6.2Zm-1.7-4H2V4h1.8l2.2 11.1A2 2 0 0 0 8 17h10v-2H8l-.4-2h10.8a2 2 0 0 0 1.9-1.4L22 6a2 2 0 0 0-1.9-2H5.8l-.3-1.2A1 1 0 0 0 4.5 2Z" />
+                                </svg>
+                                ADD TO CART
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary btn-lg product-add-cart-btn" disabled>
+                            @(Model.IsActive ? "OUT OF STOCK" : "UNAVAILABLE")
+                        </button>
+                    }
+
+                    @if (Model.IsActive)
+                    {
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="Wishlist"
+                                  asp-action="Add"
+                                  method="post"
+                                  class="product-wishlist-form">
+                                <input type="hidden" name="productId" value="@Model.Id" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-primary btn-lg product-wishlist-btn"
+                                        aria-label="Add @Model.Name to wishlist">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 21.4 10.6 20C5.4 15.4 2 12.3 2 8.5A5.5 5.5 0 0 1 7.5 3 6 6 0 0 1 12 5.1 6 6 0 0 1 16.5 3 5.5 5.5 0 0 1 22 8.5c0 3.8-3.4 6.9-8.6 11.5L12 21.4ZM7.5 5A3.5 3.5 0 0 0 4 8.5c0 2.7 2.7 5.3 8 10 5.3-4.7 8-7.3 8-10A3.5 3.5 0 0 0 16.5 5c-1.5 0-2.9.9-3.5 2.2h-2A3.9 3.9 0 0 0 7.5 5Z" />
+                                    </svg>
+                                    Wishlist
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-area="Identity"
+                               asp-page="/Account/Login"
+                               asp-route-returnUrl="@($"/Products/Details/{Model.Id}")"
+                               class="btn btn-outline-primary btn-lg product-wishlist-btn">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 21.4 10.6 20C5.4 15.4 2 12.3 2 8.5A5.5 5.5 0 0 1 7.5 3 6 6 0 0 1 12 5.1 6 6 0 0 1 16.5 3 5.5 5.5 0 0 1 22 8.5c0 3.8-3.4 6.9-8.6 11.5L12 21.4Z" />
+                                </svg>
+                                Wishlist
+                            </a>
+                        }
+                    }
+                </div>
+
+                <div class="product-purchase-note">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2 4 5v6c0 5.1 3.4 9.9 8 11 4.6-1.1 8-5.9 8-11V5l-8-3Zm0 2.1L18 6.3V11c0 4-2.5 7.8-6 8.9-3.5-1.1-6-4.9-6-8.9V6.3l6-2.2Z" />
+                    </svg>
+                    <span>Stock and price are verified again during checkout.</span>
+                </div>
+            </section>
+        </div>
+
+        <div class="product-content-nav" aria-label="Product information sections">
+            <a href="#product-description">Description</a>
+            <a href="#customer-reviews">Reviews (@reviewCount)</a>
+        </div>
+
+        <section id="product-description" class="product-content-section">
+            <div class="product-section-heading">
+                <span class="product-section-eyebrow">Product information</span>
+                <h2>Description</h2>
             </div>
-        }
 
-    </div>
+            <div class="product-description-card">
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p>@Model.Description</p>
+                }
+                else
+                {
+                    <div class="product-section-empty">
+                        <strong>No description available</strong>
+                        <span>More product information has not been added yet.</span>
+                    </div>
+                }
+            </div>
+        </section>
 
-    <!-- Product Information -->
-    <div class="col-md-6">
+        <section id="customer-reviews" class="product-content-section product-reviews-section">
+            <div class="product-review-header">
+                <div class="product-section-heading">
+                    <span class="product-section-eyebrow">Customer feedback</span>
+                    <h2>Customer Reviews</h2>
+                </div>
 
-        <h1>
-            @Model.Name
-        </h1>
+                @if (Model.IsActive)
+                {
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Reviews"
+                           asp-action="Create"
+                           asp-route-productId="@Model.Id"
+                           class="btn btn-primary">
+                            Write a Review
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity"
+                           asp-page="/Account/Login"
+                           asp-route-returnUrl="@($"/Reviews/Create?productId={Model.Id}")"
+                           class="btn btn-outline-primary">
+                            Sign in to Review
+                        </a>
+                    }
+                }
+            </div>
 
-        <p class="text-muted">
-            @Model.Category.Name
-        </p>
-
-        <hr />
-
-        <h3>
-            @Model.Price.ToString("0.00")
-        </h3>
-
-        <div class="mb-3">
-
-            @if (Model.Reviews.Any())
+            @if (reviewCount == 0)
             {
-                <span class="badge bg-warning text-dark">
-                    @averageRating.ToString("0.0") / 5
-                </span>
-
-                <span class="text-muted ms-2">
-                    (@Model.Reviews.Count review(s))
-                </span>
+                <div class="product-reviews-empty">
+                    <div class="product-reviews-empty-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-3 5a1.2 1.2 0 1 0 0 2.4A1.2 1.2 0 0 0 9 9Zm6 0a1.2 1.2 0 1 0 0 2.4A1.2 1.2 0 0 0 15 9Zm-6.3 5.3 1.5 1.3c.5-.6 1.1-.9 1.8-.9s1.3.3 1.8.9l1.5-1.3a4.3 4.3 0 0 0-6.6 0Z" />
+                        </svg>
+                    </div>
+                    <h3>No approved reviews yet</h3>
+                    <p>Be the first customer to share feedback about this product.</p>
+                </div>
             }
             else
             {
-                <span class="text-muted">
-                    No reviews yet
-                </span>
-            }
-
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <p>
-                @Model.Description
-            </p>
-        }
-        else
-        {
-            <p class="text-muted">
-                No description available.
-            </p>
-        }
-
-        <hr />
-
-        <!-- Stock Status -->
-        @if (!Model.IsActive)
-        {
-            <div class="alert alert-secondary">
-                This product is inactive.
-            </div>
-        }
-        else if (Model.StockQuantity <= 0)
-        {
-            <div class="alert alert-danger">
-                Out of Stock
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-success">
-                In Stock:
-                @Model.StockQuantity
-            </div>
-        }
-
-        <!-- Cart -->
-        @if (Model.IsActive &&
-                     Model.StockQuantity > 0)
-        {
-            <form asp-controller="Cart"
-                  asp-action="AddToCart"
-                  method="post"
-                  class="mb-3">
-
-                <input type="hidden"
-                       name="productId"
-                       value="@Model.Id" />
-
-                <button type="submit"
-                        class="btn btn-primary">
-                    Add to Cart
-                </button>
-
-            </form>
-        }
-
-        <!-- Reviews / Wishlist -->
-        @if (User.Identity != null &&
-                     User.Identity.IsAuthenticated)
-        {
-            @if (Model.IsActive)
-            {
-                <a asp-controller="Reviews"
-                   asp-action="Create"
-                   asp-route-productId="@Model.Id"
-                   class="btn btn-success">
-                    Add Review
-                </a>
-
-                <form asp-controller="Wishlist"
-                      asp-action="Add"
-                      method="post"
-                      class="d-inline">
-
-                    <input type="hidden"
-                           name="productId"
-                           value="@Model.Id" />
-
-                    <button type="submit"
-                            class="btn btn-outline-danger">
-                        Add to Wishlist
-                    </button>
-
-                </form>
-            }
-        }
-        else
-        {
-            <div class="alert alert-info mt-3">
-
-                Login to add a review or save this
-                product to your wishlist.
-
-            </div>
-        }
-
-    </div>
-
-</div>
-
-<hr class="my-5" />
-
-<!-- Reviews -->
-
-<div>
-
-    <h3>
-        Customer Reviews
-    </h3>
-
-    @if (!Model.Reviews.Any())
-    {
-        <div class="alert alert-info">
-            There are no approved reviews for this product yet.
-        </div>
-    }
-    else
-    {
-        <div class="mb-3">
-
-            <strong>
-                Average Rating:
-            </strong>
-
-            @averageRating.ToString("0.0") / 5
-
-            <span class="text-muted">
-                from @Model.Reviews.Count review(s)
-            </span>
-
-        </div>
-
-        @foreach (var review in Model.Reviews
-            .OrderByDescending(r => r.CreatedAt))
-        {
-            var reviewerName =
-                !string.IsNullOrWhiteSpace(
-                    review.User.FullName)
-                    ? review.User.FullName
-                    : review.User.UserName ?? "User";
-
-            <div class="card mb-3">
-
-                <div class="card-body">
-
-                    <div class="d-flex
-                        justify-content-between">
-
-                        <h5 class="card-title">
-                            @reviewerName
-                        </h5>
-
-                        <small class="text-muted">
-                            @review.CreatedAt
-                            .ToLocalTime()
-                            .ToString("dd/MM/yyyy")
-                        </small>
-
+                <div class="product-review-summary">
+                    <div class="product-review-score">
+                        <strong>@averageRating.ToString("0.0")</strong>
+                        <span>out of 5</span>
                     </div>
 
-                    <div class="mb-2">
-
-                        <span class="badge bg-warning text-dark">
-                            @review.Rating / 5
-                        </span>
-
+                    <div>
+                        <div class="product-rating-stars product-rating-stars-large"
+                             aria-label="Average rating @averageRating.ToString("0.0") out of 5">
+                            @for (var star = 1; star <= 5; star++)
+                            {
+                                <span class="@(star <= Math.Round(averageRating) ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                            }
+                        </div>
+                        <p>Based on @reviewCount @(reviewCount == 1 ? "approved review" : "approved reviews")</p>
                     </div>
-
-                    <p class="card-text">
-                        @review.Comment
-                    </p>
-
                 </div>
 
-            </div>
+                <div class="product-review-list">
+                    @foreach (var review in approvedReviews)
+                    {
+                        var reviewerName = !string.IsNullOrWhiteSpace(review.User.FullName)
+                            ? review.User.FullName
+                            : review.User.UserName ?? "Customer";
+
+                        <article class="product-review-card">
+                            <div class="product-review-card-header">
+                                <div class="product-review-author">
+                                    <div class="product-review-avatar" aria-hidden="true">
+                                        @reviewerName.Substring(0, 1).ToUpperInvariant()
+                                    </div>
+
+                                    <div>
+                                        <h3>@reviewerName</h3>
+                                        <time datetime="@review.CreatedAt.ToString("O")">
+                                            @review.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")
+                                        </time>
+                                    </div>
+                                </div>
+
+                                <div class="product-rating-stars"
+                                     aria-label="Rating @review.Rating out of 5">
+                                    @for (var star = 1; star <= 5; star++)
+                                    {
+                                        <span class="@(star <= review.Rating ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <p>@review.Comment</p>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <section class="product-admin-actions" aria-label="Admin product actions">
+                <div>
+                    <span class="product-section-eyebrow">Administrator</span>
+                    <h2>Product Management</h2>
+                </div>
+
+                <div class="product-admin-actions-buttons">
+                    <a asp-controller="Products"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-primary">
+                        Edit Product
+                    </a>
+
+                    <a asp-controller="ProductImages"
+                       asp-action="Index"
+                       asp-route-productId="@Model.Id"
+                       class="btn btn-secondary">
+                        Manage Images
+                    </a>
+                </div>
+            </section>
         }
-    }
-
-</div>
-
-@if (User.IsInRole("Admin"))
-{
-    <hr />
-
-    <div class="mt-3">
-
-        <a asp-controller="Products"
-           asp-action="Edit"
-           asp-route-id="@Model.Id"
-           class="btn btn-warning">
-            Edit Product
-        </a>
-
-        <a asp-controller="ProductImages"
-           asp-action="Index"
-           asp-route-productId="@Model.Id"
-           class="btn btn-secondary">
-            Manage Images
-        </a>
 
     </div>
-}
+</div>

@@ -1,39 +1,39 @@
 ﻿@{
     var notificationDefinitions = new[]
     {
-        new { Key = "CartSuccess", Type = "success", Title = "Success" },
-        new { Key = "CartError", Type = "danger", Title = "Error" },
+        new { Key = "CartSuccess", Type = "success", Title = "Cart updated" },
+        new { Key = "CartError", Type = "danger", Title = "Cart error" },
 
-        new { Key = "WishlistSuccess", Type = "success", Title = "Success" },
-        new { Key = "WishlistInfo", Type = "info", Title = "Information" },
-        new { Key = "WishlistError", Type = "danger", Title = "Error" },
+        new { Key = "WishlistSuccess", Type = "success", Title = "Wishlist updated" },
+        new { Key = "WishlistInfo", Type = "info", Title = "Wishlist" },
+        new { Key = "WishlistError", Type = "danger", Title = "Wishlist error" },
 
-        new { Key = "ReviewSuccess", Type = "success", Title = "Success" },
-        new { Key = "ReviewAdminSuccess", Type = "success", Title = "Success" },
+        new { Key = "ReviewSuccess", Type = "success", Title = "Review submitted" },
+        new { Key = "ReviewAdminSuccess", Type = "success", Title = "Review updated" },
 
-        new { Key = "TestimonialSuccess", Type = "success", Title = "Success" },
+        new { Key = "TestimonialSuccess", Type = "success", Title = "Testimonial updated" },
 
-        new { Key = "CategorySuccess", Type = "success", Title = "Success" },
-        new { Key = "CategoryError", Type = "danger", Title = "Error" },
+        new { Key = "CategorySuccess", Type = "success", Title = "Category updated" },
+        new { Key = "CategoryError", Type = "danger", Title = "Category error" },
 
-        new { Key = "ProductSuccess", Type = "success", Title = "Success" },
-        new { Key = "ProductError", Type = "danger", Title = "Error" },
+        new { Key = "ProductSuccess", Type = "success", Title = "Product updated" },
+        new { Key = "ProductError", Type = "danger", Title = "Product error" },
 
-        new { Key = "ImageSuccess", Type = "success", Title = "Success" },
-        new { Key = "ImageError", Type = "danger", Title = "Error" },
+        new { Key = "ImageSuccess", Type = "success", Title = "Product images updated" },
+        new { Key = "ImageError", Type = "danger", Title = "Image error" },
 
         new { Key = "CheckoutInfo", Type = "info", Title = "Checkout" },
 
         new { Key = "PaymentInfo", Type = "info", Title = "Payment" },
-        new { Key = "PaymentError", Type = "danger", Title = "Payment Error" },
+        new { Key = "PaymentError", Type = "danger", Title = "Payment error" },
 
-        new { Key = "OrderSuccess", Type = "success", Title = "Success" },
-        new { Key = "OrderError", Type = "danger", Title = "Order Error" },
-        new { Key = "AdminOrderSuccess", Type = "success", Title = "Success" },
+        new { Key = "OrderSuccess", Type = "success", Title = "Order updated" },
+        new { Key = "OrderError", Type = "danger", Title = "Order error" },
+        new { Key = "AdminOrderSuccess", Type = "success", Title = "Order updated" },
 
-        new { Key = "UserSuccess", Type = "success", Title = "Success" },
-        new { Key = "UserInfo", Type = "info", Title = "Information" },
-        new { Key = "UserError", Type = "danger", Title = "Error" }
+        new { Key = "UserSuccess", Type = "success", Title = "User updated" },
+        new { Key = "UserInfo", Type = "info", Title = "User information" },
+        new { Key = "UserError", Type = "danger", Title = "User error" }
     };
 
     var notifications = new List<(string Type, string Title, string Message)>();
@@ -43,59 +43,44 @@
         if (TempData[definition.Key] is string message &&
             !string.IsNullOrWhiteSpace(message))
         {
-            notifications.Add(
-                (
-                    definition.Type,
-                    definition.Title,
-                    message
-                )
-            );
+            notifications.Add((definition.Type, definition.Title, message));
         }
     }
 }
 
 @if (notifications.Any())
 {
-    <div class="toast-container
-        position-fixed
-        top-0
-        end-0
-        p-3"
-         style="z-index: 1090; margin-top: 70px;">
+    <div class="toast-container darbak-toast-container position-fixed top-0 end-0 p-3"
+         aria-label="Notifications">
 
         @foreach (var notification in notifications)
         {
-            <div class="toast darbak-toast shadow mb-2"
-                 role="alert"
-                 aria-live="assertive"
+            var isError = notification.Type == "danger";
+
+            <div class="toast darbak-toast darbak-toast-@notification.Type"
+                 role="@(isError ? "alert" : "status")"
+                 aria-live="@(isError ? "assertive" : "polite")"
                  aria-atomic="true"
                  data-bs-autohide="true"
-                 data-bs-delay="4000">
+                 data-bs-delay="4500">
 
-                <div class="toast-header">
+                <div class="darbak-toast-accent" aria-hidden="true"></div>
 
-                    <span class="badge bg-@notification.Type me-2">
-                        &nbsp;
-                    </span>
+                <div class="darbak-toast-content">
+                    <div class="darbak-toast-icon" aria-hidden="true"></div>
 
-                    <strong class="me-auto">
-                        @notification.Title
-                    </strong>
+                    <div class="darbak-toast-copy">
+                        <strong>@notification.Title</strong>
+                        <p>@notification.Message</p>
+                    </div>
 
                     <button type="button"
-                            class="btn-close"
+                            class="btn-close darbak-toast-close"
                             data-bs-dismiss="toast"
-                            aria-label="Close">
+                            aria-label="Close notification">
                     </button>
-
                 </div>
-
-                <div class="toast-body">
-                    @notification.Message
-                </div>
-
             </div>
         }
-
     </div>
 }

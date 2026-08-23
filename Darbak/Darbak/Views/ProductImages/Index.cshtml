@@ -1,101 +1,38 @@
-﻿@model Darbak.Models.Product
-
+@model Darbak.Models.Product
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Product Images";
 }
-
-<h1>Images - @Model.Name</h1>
-
-<a asp-action="Create"
-   asp-route-productId="@Model.Id"
-   class="btn btn-primary mb-3">
-    Add Image
-</a>
-
+<div class="admin-page-heading">
+    <div><span class="admin-page-heading__eyebrow">Catalog</span><h1>Product Images</h1><p>Manage gallery images for <strong>@Model.Name</strong>.</p></div>
+    <div class="d-flex gap-2 flex-wrap"><a asp-action="Create" asp-route-productId="@Model.Id" class="btn btn-primary">Add Image</a><a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">Back to Products</a></div>
+</div>
 @if (!Model.Images.Any())
 {
-    <div class="alert alert-info">
-        No images have been added to this product yet.
-    </div>
+    <div class="admin-empty-state admin-empty-state--panel"><strong>No product images</strong><span>Upload the first image for this product.</span><a asp-action="Create" asp-route-productId="@Model.Id" class="btn btn-primary btn-sm">Upload Image</a></div>
 }
 else
 {
-    <div class="row">
-
-        @foreach (var image in Model.Images
-            .OrderByDescending(i => i.IsMain)
-            .ThenBy(i => i.Id))
+    <div class="admin-image-grid">
+        @foreach (var image in Model.Images.OrderByDescending(i => i.IsMain).ThenBy(i => i.Id))
         {
-            <div class="col-md-3 mb-3">
-
-                <div class="card h-100">
-
-                    <img src="@image.ImageUrl"
-                         class="card-img-top"
-                         alt="@Model.Name"
-                         style="height: 200px; object-fit: cover;" />
-
-                    <div class="card-body">
-
-                        @if (image.IsMain)
-                        {
-                            <div class="mb-2">
-                                <span class="badge bg-success">
-                                    Main Image
-                                </span>
-                            </div>
-                        }
-
-                        <p class="small text-muted text-break">
-                            @image.ImageUrl
-                        </p>
-
+            <article class="admin-image-card">
+                <div class="admin-image-card__media"><img src="@image.ImageUrl" alt="@Model.Name product image" /></div>
+                <div class="admin-image-card__body">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <span class="@(image.IsMain ? "status-badge status-badge--success" : "status-badge status-badge--muted")">@(image.IsMain ? "Main Image" : "Gallery Image")</span>
+                        <small>#@image.Id</small>
+                    </div>
+                    <p class="admin-image-card__path">@image.ImageUrl</p>
+                    <div class="admin-actions">
                         @if (!image.IsMain)
                         {
-                            <form asp-action="SetMain"
-                                  method="post"
-                                  class="d-inline">
-
-                                <input type="hidden"
-                                       name="id"
-                                       value="@image.Id" />
-
-                                <button type="submit"
-                                        class="btn btn-success btn-sm">
-                                    Set as Main
-                                </button>
-
-                            </form>
+                            <form asp-action="SetMain" method="post"><input type="hidden" name="id" value="@image.Id" /><button type="submit" class="admin-table-action">Set as Main</button></form>
                         }
-
-                        <form asp-action="Delete"
-                              method="post"
-                              class="d-inline">
-
-                            <input type="hidden"
-                                   name="id"
-                                   value="@image.Id" />
-
-                            <button type="submit"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Delete this image?');">
-                                Delete
-                            </button>
-
-                        </form>
-
+                        <form asp-action="Delete" method="post" onsubmit="return confirm('Delete this image?');"><input type="hidden" name="id" value="@image.Id" /><button type="submit" class="admin-table-action admin-table-action--danger">Delete</button></form>
                     </div>
-
                 </div>
-
-            </div>
+            </article>
         }
-
     </div>
 }
-
-<a asp-controller="Products"
-   asp-action="Index"
-   class="btn btn-secondary">
-    Back to Products
-</a>

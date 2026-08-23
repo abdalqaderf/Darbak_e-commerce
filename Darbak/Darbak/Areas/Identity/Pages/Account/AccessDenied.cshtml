@@ -1,10 +1,18 @@
 @page
 @model AccessDeniedModel
 @{
-    ViewData["Title"] = "Access denied";
+    ViewData["Title"] = "Access Denied";
 }
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">You do not have access to this resource.</p>
-</header>
+<section class="system-state-page" aria-labelledby="access-denied-title">
+    <div class="system-state-card">
+        <div class="system-state-code" aria-hidden="true">403</div>
+        <span class="section-eyebrow">Account Security</span>
+        <h1 id="access-denied-title">Access denied</h1>
+        <p>Your account does not have permission to access this resource.</p>
+        <div class="system-state-actions">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Home</a>
+            <a asp-area="" asp-controller="Catalog" asp-action="Index" class="btn btn-outline-secondary">Browse Products</a>
+        </div>
+    </div>
+</section>

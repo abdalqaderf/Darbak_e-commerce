@@ -4,232 +4,231 @@
     ViewData["Title"] = "Checkout";
 }
 
-<div class="mb-4">
-    <h1 class="h2 mb-1">
-        Checkout
-    </h1>
+<section class="checkout-page" aria-labelledby="checkout-title">
+    <div class="container">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <span aria-hidden="true">/</span>
+            <a asp-controller="Cart" asp-action="Index">Cart</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Checkout</span>
+        </nav>
 
-    <p class="text-muted mb-0">
-        Confirm your shipping information before payment.
-    </p>
-</div>
+        <div class="checkout-heading">
+            <div>
+                <span class="section-eyebrow">Secure checkout</span>
+                <h1 id="checkout-title">Checkout</h1>
+                <p>Enter your shipping details, then review your order before continuing to payment.</p>
+            </div>
 
-<form asp-action="Checkout"
-      method="post"
-      id="checkoutForm">
-
-    @if (ViewData.ModelState.ErrorCount > 0)
-    {
-        <div asp-validation-summary="ModelOnly"
-             class="alert alert-danger"
-             role="alert">
-        </div>
-    }
-
-    <div class="row g-4">
-
-        <div class="col-12 col-lg-7">
-
-            <section class="card shadow-sm"
-                     aria-labelledby="shipping-heading">
-
-                <div class="card-header">
-                    <h2 id="shipping-heading"
-                        class="h5 mb-0">
-                        Shipping Information
-                    </h2>
-                </div>
-
-                <div class="card-body">
-
-                    <div class="mb-3">
-
-                        <label asp-for="ShippingAddress"
-                               class="form-label">
-                        </label>
-
-                        <input asp-for="ShippingAddress"
-                               class="form-control"
-                               autocomplete="street-address" />
-
-                        <span asp-validation-for="ShippingAddress"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label asp-for="City"
-                               class="form-label">
-                        </label>
-
-                        <input asp-for="City"
-                               class="form-control"
-                               autocomplete="address-level2" />
-
-                        <span asp-validation-for="City"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-                    <div class="mb-0">
-
-                        <label asp-for="PhoneNumber"
-                               class="form-label">
-                        </label>
-
-                        <input asp-for="PhoneNumber"
-                               type="tel"
-                               class="form-control"
-                               autocomplete="tel" />
-
-                        <span asp-validation-for="PhoneNumber"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </section>
-
+            <ol class="checkout-steps" aria-label="Checkout progress">
+                <li class="checkout-step checkout-step-complete">
+                    <span class="checkout-step-number" aria-hidden="true">1</span>
+                    <span>Cart</span>
+                </li>
+                <li class="checkout-step checkout-step-active" aria-current="step">
+                    <span class="checkout-step-number" aria-hidden="true">2</span>
+                    <span>Details</span>
+                </li>
+                <li class="checkout-step">
+                    <span class="checkout-step-number" aria-hidden="true">3</span>
+                    <span>Payment</span>
+                </li>
+            </ol>
         </div>
 
-        <div class="col-12 col-lg-5">
-
-            <section class="card shadow-sm"
-                     aria-labelledby="summary-heading">
-
-                <div class="card-header">
-                    <h2 id="summary-heading"
-                        class="h5 mb-0">
-                        Order Summary
-                    </h2>
+        <form asp-action="Checkout" method="post" id="checkoutForm">
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger checkout-validation-summary"
+                     role="alert">
                 </div>
+            }
 
-                <div class="card-body">
-
-                    <div class="table-responsive">
-
-                        <table class="table align-middle">
-
-                            <caption class="visually-hidden">
-                                Products included in this order
-                            </caption>
-
-                            <thead>
-
-                                <tr>
-                                    <th scope="col">
-                                        Product
-                                    </th>
-
-                                    <th scope="col"
-                                        class="text-center">
-                                        Qty
-                                    </th>
-
-                                    <th scope="col"
-                                        class="text-end">
-                                        Total
-                                    </th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                @foreach (var item in Model.CartItems)
-                                {
-                                    <tr>
-
-                                        <td>
-                                            @item.ProductName
-                                        </td>
-
-                                        <td class="text-center">
-                                            @item.Quantity
-                                        </td>
-
-                                        <td class="text-end text-nowrap">
-                                            @item.Total.ToString("0.00")
-                                        </td>
-
-                                    </tr>
-                                }
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="border-top pt-3 mb-3">
-
-                        <div class="d-flex
-                            justify-content-between
-                            align-items-center">
-
-                            <strong>
-                                Total
-                            </strong>
-
-                            <strong class="fs-4">
-                                @Model.TotalAmount.ToString("0.00")
-                            </strong>
-
+            <div class="checkout-layout">
+                <div class="checkout-main">
+                    <section class="checkout-card" aria-labelledby="shipping-heading">
+                        <div class="checkout-card-header">
+                            <span class="checkout-card-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M12 21s7-5.3 7-12a7 7 0 1 0-14 0c0 6.7 7 12 7 12Z" />
+                                    <circle cx="12" cy="9" r="2.4" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h2 id="shipping-heading">Shipping Information</h2>
+                                <p>Use the address and phone number where your order should be associated.</p>
+                            </div>
                         </div>
 
+                        <div class="checkout-card-body">
+                            <div class="checkout-field checkout-field-wide">
+                                <label asp-for="ShippingAddress" class="form-label"></label>
+                                <input asp-for="ShippingAddress"
+                                       class="form-control form-control-lg"
+                                       autocomplete="street-address"
+                                       placeholder="Street address" />
+                                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                            </div>
+
+                            <div class="checkout-field-grid">
+                                <div class="checkout-field">
+                                    <label asp-for="City" class="form-label"></label>
+                                    <input asp-for="City"
+                                           class="form-control form-control-lg"
+                                           autocomplete="address-level2"
+                                           placeholder="City" />
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+
+                                <div class="checkout-field">
+                                    <label asp-for="PhoneNumber" class="form-label"></label>
+                                    <input asp-for="PhoneNumber"
+                                           type="tel"
+                                           class="form-control form-control-lg"
+                                           autocomplete="tel"
+                                           inputmode="tel"
+                                           placeholder="Phone number" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="checkout-help-card">
+                        <span class="checkout-help-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
+                                <path d="M12 11v6M12 7h.01" />
+                            </svg>
+                        </span>
+                        <div>
+                            <strong>Review before payment</strong>
+                            <p>Your cart is checked again for current product availability, stock, and pricing before the payment step.</p>
+                        </div>
                     </div>
-
-                    <div class="d-grid
-                        gap-2
-                        d-sm-flex">
-
-                        <button type="submit"
-                                id="continueButton"
-                                class="btn btn-success">
-                            Continue to Payment
-                        </button>
-
-                        <a asp-controller="Cart"
-                           asp-action="Index"
-                           class="btn btn-outline-secondary">
-                            Back to Cart
-                        </a>
-
-                    </div>
-
                 </div>
 
-            </section>
+                <aside class="checkout-sidebar" aria-labelledby="summary-heading">
+                    <section class="checkout-summary-card">
+                        <div class="checkout-summary-header">
+                            <div>
+                                <span class="section-eyebrow">Your order</span>
+                                <h2 id="summary-heading">Order Summary</h2>
+                            </div>
+                            <span class="checkout-item-count">
+                                @Model.CartItems.Sum(item => item.Quantity)
+                                @(Model.CartItems.Sum(item => item.Quantity) == 1 ? "item" : "items")
+                            </span>
+                        </div>
 
-        </div>
+                        <div class="checkout-summary-items">
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <article class="checkout-summary-item">
+                                    <a asp-controller="Products"
+                                       asp-action="Details"
+                                       asp-route-id="@item.ProductId"
+                                       class="checkout-summary-image"
+                                       aria-label="View @item.ProductName">
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl" alt="@item.ProductName" />
+                                        }
+                                        else
+                                        {
+                                            <span class="checkout-image-placeholder" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                                                    <path d="M3 17.5 7.5 13l3.5 3.5 2.5-2.5L21 21H3v-3.5Z" />
+                                                    <path d="M3 3h18v18H3z" />
+                                                    <circle cx="15.5" cy="8.5" r="1.5" />
+                                                </svg>
+                                            </span>
+                                        }
+                                    </a>
 
+                                    <div class="checkout-summary-product">
+                                        <a asp-controller="Products"
+                                           asp-action="Details"
+                                           asp-route-id="@item.ProductId"
+                                           class="checkout-summary-name">
+                                            @item.ProductName
+                                        </a>
+                                        <span>Qty: @item.Quantity</span>
+                                        <span>@item.Price.ToString("0.00") each</span>
+                                    </div>
+
+                                    <strong class="checkout-summary-line-total">
+                                        @item.Total.ToString("0.00")
+                                    </strong>
+                                </article>
+                            }
+                        </div>
+
+                        <div class="checkout-totals">
+                            <div class="checkout-total-row">
+                                <span>Subtotal</span>
+                                <span>@Model.TotalAmount.ToString("0.00")</span>
+                            </div>
+                            <div class="checkout-total-row checkout-total-row-final">
+                                <span>Total</span>
+                                <strong>@Model.TotalAmount.ToString("0.00")</strong>
+                            </div>
+                        </div>
+
+                        <div class="checkout-summary-actions">
+                            <button type="submit"
+                                    id="continueButton"
+                                    class="btn btn-primary btn-lg w-100">
+                                <span>Continue to Payment</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path d="m9 18 6-6-6-6" />
+                                </svg>
+                            </button>
+
+                            <a asp-controller="Cart"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary w-100">
+                                Back to Cart
+                            </a>
+                        </div>
+
+                        <p class="checkout-summary-note">
+                            No payment information is collected on this page.
+                        </p>
+                    </section>
+                </aside>
+            </div>
+        </form>
     </div>
-
-</form>
+</section>
 
 @section Scripts {
-
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        document
-            .getElementById("checkoutForm")
-            .addEventListener("submit", function () {
+        (() => {
+            const form = document.getElementById("checkoutForm");
+            const button = document.getElementById("continueButton");
 
-                if (!$(this).valid()) {
+            if (!form || !button) {
+                return;
+            }
+
+            form.addEventListener("submit", function () {
+                if (window.jQuery && !window.jQuery(form).valid()) {
                     return;
                 }
 
-                const button =
-                    document.getElementById("continueButton");
-
                 button.disabled = true;
-                button.innerText = "Preparing Payment...";
+                button.setAttribute("aria-busy", "true");
+
+                const label = button.querySelector("span");
+                if (label) {
+                    label.textContent = "Preparing Payment...";
+                }
             });
+        })();
     </script>
 }

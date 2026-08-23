@@ -1,6 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Privacy & Data Use";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<nav class="darbak-breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Home</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">Privacy &amp; Data Use</span>
+</nav>
+
+<section class="content-policy-page" aria-labelledby="privacy-title">
+    <header class="content-policy-heading">
+        <span class="section-eyebrow">Darbak</span>
+        <h1 id="privacy-title">Privacy &amp; Data Use</h1>
+        <p>This page summarizes how the current Darbak application uses information to provide its core store features.</p>
+    </header>
+
+    <div class="content-policy-card">
+        <section aria-labelledby="privacy-account">
+            <h2 id="privacy-account">Account Information</h2>
+            <p>Account information is used for authentication and access to features such as wishlist, reviews, testimonials, checkout, and order history.</p>
+        </section>
+
+        <section aria-labelledby="privacy-orders">
+            <h2 id="privacy-orders">Orders &amp; Checkout</h2>
+            <p>Checkout uses the shipping and contact information entered during the order flow so the application can create and display the related order.</p>
+        </section>
+
+        <section aria-labelledby="privacy-session">
+            <h2 id="privacy-session">Cart Session</h2>
+            <p>The shopping cart uses session-based storage so cart contents can remain available while you browse and continue to checkout.</p>
+        </section>
+
+        <section aria-labelledby="privacy-public-content">
+            <h2 id="privacy-public-content">Reviews &amp; Testimonials</h2>
+            <p>Submitted reviews and testimonials follow the project’s approval workflow. Only approved content is intended to appear publicly.</p>
+        </section>
+
+        <div class="content-policy-note" role="note">
+            <strong>Deployment note</strong>
+            <p>A production deployment should publish a final privacy policy that matches its hosting, payment provider, retention, and legal requirements.</p>
+        </div>
+    </div>
+</section>
