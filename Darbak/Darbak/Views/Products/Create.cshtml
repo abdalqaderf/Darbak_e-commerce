@@ -7,7 +7,7 @@
 <div class="admin-form-grid">
 <div class="admin-form-field admin-form-field--full"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
 <div class="admin-form-field admin-form-field--full"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control" rows="5"></textarea><span asp-validation-for="Description" class="text-danger"></span></div>
-<div class="admin-form-field"><label asp-for="Price"></label><input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" /><span asp-validation-for="Price" class="text-danger"></span></div>
+<div class="admin-form-field"><label asp-for="Price">Price (JD)</label><input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" /><span asp-validation-for="Price" class="text-danger"></span></div>
 <div class="admin-form-field"><label asp-for="StockQuantity">Stock Quantity</label><input asp-for="StockQuantity" class="form-control" type="number" min="0" /><span asp-validation-for="StockQuantity" class="text-danger"></span></div>
 <div class="admin-form-field"><label asp-for="CategoryId">Category</label><select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-select"><option value="0">Select Category</option></select><span asp-validation-for="CategoryId" class="text-danger"></span></div>
 <div class="admin-form-field admin-form-field--toggle"><div class="form-check form-switch"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Active and visible in the store</label></div></div>

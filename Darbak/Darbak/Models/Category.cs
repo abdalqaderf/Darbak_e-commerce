@@ -13,6 +13,9 @@ namespace Darbak.Models
         [StringLength(500)]
         public string? Description { get; set; }
 
+        [StringLength(300)]
+        public string? ImageUrl { get; set; }
+
         public ICollection<Product> Products
         {
             get;

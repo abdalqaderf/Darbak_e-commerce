@@ -41,7 +41,7 @@
 <div class="admin-secondary-stats">
     <article class="admin-metric-card">
         <span>Total Order Value</span>
-        <strong>@Model.TotalOrderValue.ToString("0.00")</strong>
+        <strong>@Model.TotalOrderValue.ToString("0.00") JD</strong>
         <small>Across all orders</small>
     </article>
     <article class="admin-metric-card">
@@ -90,7 +90,7 @@
                         <tr>
                             <td><strong>#@order.Id</strong><small>@order.OrderDate.ToLocalTime().ToString("dd MMM yyyy")</small></td>
                             <td>@order.UserName</td>
-                            <td>@order.TotalAmount.ToString("0.00")</td>
+                            <td>@order.TotalAmount.ToString("0.00") JD</td>
                             <td><span class="@statusClass">@order.Status</span></td>
                             <td class="text-end"><a asp-controller="Orders" asp-action="AdminDetails" asp-route-id="@order.Id" class="admin-table-action">View</a></td>
                         </tr>
@@ -123,7 +123,7 @@
                 @foreach (var product in Model.LowStockProducts)
                 {
                     <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="admin-list-item">
-                        <span><strong>@product.Name</strong><small>@product.Price.ToString("0.00")</small></span>
+                        <span><strong>@product.Name</strong><small>@product.Price.ToString("0.00") JD</small></span>
                         <span class="@(product.StockQuantity == 0 ? "status-badge status-badge--danger" : "status-badge status-badge--warning")">
                             @product.StockQuantity in stock
                         </span>

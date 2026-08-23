@@ -1,4 +1,4 @@
-﻿@using Darbak.Models
+@using Darbak.Models
 @using Microsoft.AspNetCore.Identity
 
 @inject SignInManager<ApplicationUser> SignInManager
@@ -12,7 +12,8 @@
                 id="accountDropdown"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                aria-label="Open account menu">
+                aria-label="Open account menu"
+                title="Account">
 
             <svg class="site-action-icon"
                  viewBox="0 0 24 24"
@@ -24,12 +25,6 @@
                       fill="currentColor" />
             </svg>
 
-            <span class="site-action-copy">
-                <span class="site-action-kicker">Account</span>
-                <span class="site-action-label site-account-name">
-                    @User.Identity?.Name
-                </span>
-            </span>
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end site-account-menu"
@@ -98,7 +93,8 @@ else
                 id="accountDropdown"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                aria-label="Open account menu">
+                aria-label="Open account menu"
+                title="Account">
 
             <svg class="site-action-icon"
                  viewBox="0 0 24 24"
@@ -110,10 +106,6 @@ else
                       fill="currentColor" />
             </svg>
 
-            <span class="site-action-copy">
-                <span class="site-action-kicker">Welcome</span>
-                <span class="site-action-label">Account</span>
-            </span>
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end site-account-menu"

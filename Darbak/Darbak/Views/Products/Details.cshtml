@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = Model.Name;
+    var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 
     var images = Model.Images
         .OrderByDescending(i => i.IsMain)
@@ -23,15 +24,10 @@
 
 <div class="product-details-page">
     <div class="container">
-
         <nav class="darbak-breadcrumb" aria-label="Breadcrumb">
             <ol>
-                <li>
-                    <a asp-controller="Home" asp-action="Index">Home</a>
-                </li>
-                <li>
-                    <a asp-controller="Catalog" asp-action="Index">Shop</a>
-                </li>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a asp-controller="Catalog" asp-action="Index">Shop</a></li>
                 <li>
                     <a asp-controller="Catalog"
                        asp-action="Index"
@@ -44,66 +40,64 @@
         </nav>
 
         <div class="product-details-shell">
-
             <section class="product-gallery" aria-label="Product images">
-                <div class="product-main-media">
-                    @if (mainImage != null)
+                <div class="product-gallery-frame">
+                    @if (images.Count > 1)
                     {
-                        <img id="product-main-image"
-                             src="@mainImage.ImageUrl"
-                             alt="@Model.Name"
-                             class="product-main-image" />
-                    }
-                    else
-                    {
-                        <div class="product-image-placeholder" role="img" aria-label="No image available for @Model.Name">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM5 5h14v9.1l-3.2-3.2a1 1 0 0 0-1.4 0l-2.3 2.3-1.3-1.3a1 1 0 0 0-1.4 0L5 16.3V5Zm0 14 5.1-5.1 1.3 1.3a1 1 0 0 0 1.4 0l2.3-2.3 3.9 3.9V19H5Z" />
-                                <path d="M8.5 10A1.5 1.5 0 1 0 8.5 7a1.5 1.5 0 0 0 0 3Z" />
-                            </svg>
-                            <span>No image available</span>
+                        <div class="product-thumbnail-list" aria-label="Choose product image">
+                            @foreach (var image in images)
+                            {
+                                <button type="button"
+                                        class="product-thumbnail @(image.Id == mainImage?.Id ? "is-active" : string.Empty)"
+                                        data-product-thumbnail
+                                        data-image-url="@image.ImageUrl"
+                                        data-image-alt="@Model.Name"
+                                        aria-label="View image of @Model.Name"
+                                        aria-pressed="@(image.Id == mainImage?.Id ? "true" : "false")">
+                                    <img src="@image.ImageUrl" alt="" loading="lazy" />
+
+                                    @if (image.IsMain)
+                                    {
+                                        <span class="product-thumbnail-main">Main</span>
+                                    }
+                                </button>
+                            }
                         </div>
                     }
-                </div>
 
-                @if (images.Count > 1)
-                {
-                    <div class="product-thumbnail-list" aria-label="Choose product image">
-                        @foreach (var image in images)
+                    <div class="product-main-media">
+                        <span class="product-media-index" aria-hidden="true">DBK / PRODUCT</span>
+
+                        @if (mainImage != null)
                         {
-                            <button type="button"
-                                    class="product-thumbnail @(image.Id == mainImage?.Id ? "is-active" : string.Empty)"
-                                    data-product-thumbnail
-                                    data-image-url="@image.ImageUrl"
-                                    data-image-alt="@Model.Name"
-                                    aria-label="View image of @Model.Name"
-                                    aria-pressed="@(image.Id == mainImage?.Id ? "true" : "false")">
-                                <img src="@image.ImageUrl"
-                                     alt=""
-                                     loading="lazy" />
-
-                                @if (image.IsMain)
-                                {
-                                    <span class="product-thumbnail-main">Main</span>
-                                }
-                            </button>
+                            <img id="product-main-image"
+                                 src="@mainImage.ImageUrl"
+                                 alt="@Model.Name"
+                                 class="product-main-image" />
+                        }
+                        else
+                        {
+                            <div class="product-image-placeholder" role="img" aria-label="No image available for @Model.Name">
+                                <strong>DBK</strong>
+                                <span>No image available</span>
+                            </div>
                         }
                     </div>
-                }
+                </div>
             </section>
 
             <section class="product-purchase-panel" aria-labelledby="product-title">
-                <div class="product-category-label">
+                <div class="product-purchase-intro">
                     <a asp-controller="Catalog"
                        asp-action="Index"
-                       asp-route-categoryId="@Model.CategoryId">
+                       asp-route-categoryId="@Model.CategoryId"
+                       class="product-category-label">
                         @Model.Category.Name
                     </a>
+                    <span class="product-reference">PRODUCT / @Model.Id.ToString("D4")</span>
                 </div>
 
-                <h1 id="product-title" class="product-details-title">
-                    @Model.Name
-                </h1>
+                <h1 id="product-title" class="product-details-title">@Model.Name</h1>
 
                 <div class="product-rating-row">
                     @if (reviewCount > 0)
@@ -117,58 +111,55 @@
                         </div>
 
                         <a href="#customer-reviews" class="product-rating-link">
-                            @averageRating.ToString("0.0")
-                            <span>·</span>
-                            @reviewCount @(reviewCount == 1 ? "review" : "reviews")
+                            @averageRating.ToString("0.0") · @reviewCount @(reviewCount == 1 ? "review" : "reviews")
                         </a>
                     }
                     else
                     {
-                        <span class="product-no-rating">No reviews yet</span>
+                        <a href="#customer-reviews" class="product-no-rating">No reviews yet</a>
                     }
                 </div>
 
-                <div class="product-details-price">
-                    @Model.Price.ToString("0.00")
+                <div class="product-price-row">
+                    <div class="product-details-price">
+                        @Model.Price.ToString("0.00") <span>JD</span>
+                    </div>
+
+                    <div class="product-stock-row">
+                        @if (!Model.IsActive)
+                        {
+                            <span class="stock-status stock-status--muted"><span></span>Inactive</span>
+                        }
+                        else if (Model.StockQuantity <= 0)
+                        {
+                            <span class="stock-status stock-status--out"><span></span>Out of stock</span>
+                        }
+                        else
+                        {
+                            <span class="stock-status stock-status--in"><span></span>In stock</span>
+                        }
+                    </div>
                 </div>
 
-                <div class="product-stock-row">
-                    @if (!Model.IsActive)
-                    {
-                        <span class="stock-pill stock-pill-inactive">
-                            <span class="stock-dot" aria-hidden="true"></span>
-                            Inactive product
-                        </span>
-                    }
-                    else if (Model.StockQuantity <= 0)
-                    {
-                        <span class="stock-pill stock-pill-out">
-                            <span class="stock-dot" aria-hidden="true"></span>
-                            Out of stock
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="stock-pill stock-pill-in">
-                            <span class="stock-dot" aria-hidden="true"></span>
-                            In stock
-                        </span>
-                        <span class="product-stock-count">
-                            @Model.StockQuantity available
-                        </span>
-                    }
+                <div class="product-fact-grid" aria-label="Product facts">
+                    <div>
+                        <span>Category</span>
+                        <strong>@Model.Category.Name</strong>
+                    </div>
+                    <div>
+                        <span>Availability</span>
+                        <strong>@(Model.StockQuantity > 0 ? $"{Model.StockQuantity} units" : "Unavailable")</strong>
+                    </div>
+                    <div>
+                        <span>Status</span>
+                        <strong>@(Model.IsActive ? "Active" : "Inactive")</strong>
+                    </div>
                 </div>
 
-                <div class="product-summary-copy">
-                    @if (!string.IsNullOrWhiteSpace(Model.Description))
-                    {
-                        <p>@Model.Description</p>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Product description is not available yet.</p>
-                    }
-                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p class="product-summary-copy">@Model.Description</p>
+                }
 
                 <div class="product-action-panel">
                     @if (Model.IsActive && Model.StockQuantity > 0)
@@ -178,19 +169,20 @@
                               method="post"
                               class="product-cart-form">
                             <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
 
-                            <button type="submit" class="btn btn-primary btn-lg product-add-cart-btn">
+                            <button type="submit" class="product-add-cart-btn">
+                                <span>Add to cart</span>
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM6.2 6l.7 4H18l1.4-4H6.2Zm-1.7-4H2V4h1.8l2.2 11.1A2 2 0 0 0 8 17h10v-2H8l-.4-2h10.8a2 2 0 0 0 1.9-1.4L22 6a2 2 0 0 0-1.9-2H5.8l-.3-1.2A1 1 0 0 0 4.5 2Z" />
                                 </svg>
-                                ADD TO CART
                             </button>
                         </form>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-primary btn-lg product-add-cart-btn" disabled>
-                            @(Model.IsActive ? "OUT OF STOCK" : "UNAVAILABLE")
+                        <button type="button" class="product-add-cart-btn" disabled>
+                            @(Model.IsActive ? "Out of stock" : "Unavailable")
                         </button>
                     }
 
@@ -198,19 +190,13 @@
                     {
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <form asp-controller="Wishlist"
-                                  asp-action="Add"
-                                  method="post"
-                                  class="product-wishlist-form">
+                            <form asp-controller="Wishlist" asp-action="Add" method="post" class="product-wishlist-form">
                                 <input type="hidden" name="productId" value="@Model.Id" />
-
-                                <button type="submit"
-                                        class="btn btn-outline-primary btn-lg product-wishlist-btn"
-                                        aria-label="Add @Model.Name to wishlist">
+                                <button type="submit" class="product-wishlist-btn" aria-label="Add @Model.Name to wishlist">
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
                                         <path d="M12 21.4 10.6 20C5.4 15.4 2 12.3 2 8.5A5.5 5.5 0 0 1 7.5 3 6 6 0 0 1 12 5.1 6 6 0 0 1 16.5 3 5.5 5.5 0 0 1 22 8.5c0 3.8-3.4 6.9-8.6 11.5L12 21.4ZM7.5 5A3.5 3.5 0 0 0 4 8.5c0 2.7 2.7 5.3 8 10 5.3-4.7 8-7.3 8-10A3.5 3.5 0 0 0 16.5 5c-1.5 0-2.9.9-3.5 2.2h-2A3.9 3.9 0 0 0 7.5 5Z" />
                                     </svg>
-                                    Wishlist
+                                    <span>Save</span>
                                 </button>
                             </form>
                         }
@@ -219,37 +205,38 @@
                             <a asp-area="Identity"
                                asp-page="/Account/Login"
                                asp-route-returnUrl="@($"/Products/Details/{Model.Id}")"
-                               class="btn btn-outline-primary btn-lg product-wishlist-btn">
+                               class="product-wishlist-btn">
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M12 21.4 10.6 20C5.4 15.4 2 12.3 2 8.5A5.5 5.5 0 0 1 7.5 3 6 6 0 0 1 12 5.1 6 6 0 0 1 16.5 3 5.5 5.5 0 0 1 22 8.5c0 3.8-3.4 6.9-8.6 11.5L12 21.4Z" />
                                 </svg>
-                                Wishlist
+                                <span>Save</span>
                             </a>
                         }
                     }
                 </div>
 
-                <div class="product-purchase-note">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 2 4 5v6c0 5.1 3.4 9.9 8 11 4.6-1.1 8-5.9 8-11V5l-8-3Zm0 2.1L18 6.3V11c0 4-2.5 7.8-6 8.9-3.5-1.1-6-4.9-6-8.9V6.3l6-2.2Z" />
-                    </svg>
-                    <span>Stock and price are verified again during checkout.</span>
+                <div class="product-checkout-note">
+                    <span>CHECKOUT CHECK</span>
+                    Price and stock are verified again before the order is created.
                 </div>
             </section>
         </div>
 
         <div class="product-content-nav" aria-label="Product information sections">
             <a href="#product-description">Description</a>
-            <a href="#customer-reviews">Reviews (@reviewCount)</a>
+            <a href="#customer-reviews">Reviews <span>@reviewCount.ToString("D2")</span></a>
         </div>
 
-        <section id="product-description" class="product-content-section">
+        <section id="product-description" class="product-content-section product-description-section">
             <div class="product-section-heading">
-                <span class="product-section-eyebrow">Product information</span>
-                <h2>Description</h2>
+                <span class="product-section-index">01</span>
+                <div>
+                    <span class="product-section-eyebrow">Product information</span>
+                    <h2>Description</h2>
+                </div>
             </div>
 
-            <div class="product-description-card">
+            <div class="product-description-content">
                 @if (!string.IsNullOrWhiteSpace(Model.Description))
                 {
                     <p>@Model.Description</p>
@@ -267,8 +254,11 @@
         <section id="customer-reviews" class="product-content-section product-reviews-section">
             <div class="product-review-header">
                 <div class="product-section-heading">
-                    <span class="product-section-eyebrow">Customer feedback</span>
-                    <h2>Customer Reviews</h2>
+                    <span class="product-section-index">02</span>
+                    <div>
+                        <span class="product-section-eyebrow">Customer feedback</span>
+                        <h2>Reviews</h2>
+                    </div>
                 </div>
 
                 @if (Model.IsActive)
@@ -278,8 +268,8 @@
                         <a asp-controller="Reviews"
                            asp-action="Create"
                            asp-route-productId="@Model.Id"
-                           class="btn btn-primary">
-                            Write a Review
+                           class="product-review-action">
+                            Write a review →
                         </a>
                     }
                     else
@@ -287,8 +277,8 @@
                         <a asp-area="Identity"
                            asp-page="/Account/Login"
                            asp-route-returnUrl="@($"/Reviews/Create?productId={Model.Id}")"
-                           class="btn btn-outline-primary">
-                            Sign in to Review
+                           class="product-review-action">
+                            Sign in to review →
                         </a>
                     }
                 }
@@ -297,24 +287,18 @@
             @if (reviewCount == 0)
             {
                 <div class="product-reviews-empty">
-                    <div class="product-reviews-empty-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-3 5a1.2 1.2 0 1 0 0 2.4A1.2 1.2 0 0 0 9 9Zm6 0a1.2 1.2 0 1 0 0 2.4A1.2 1.2 0 0 0 15 9Zm-6.3 5.3 1.5 1.3c.5-.6 1.1-.9 1.8-.9s1.3.3 1.8.9l1.5-1.3a4.3 4.3 0 0 0-6.6 0Z" />
-                        </svg>
-                    </div>
-                    <h3>No approved reviews yet</h3>
-                    <p>Be the first customer to share feedback about this product.</p>
+                    <span>NO APPROVED REVIEWS</span>
+                    <strong>Customer feedback will appear here after moderation.</strong>
                 </div>
             }
             else
             {
-                <div class="product-review-summary">
-                    <div class="product-review-score">
-                        <strong>@averageRating.ToString("0.0")</strong>
-                        <span>out of 5</span>
-                    </div>
-
-                    <div>
+                <div class="product-review-layout">
+                    <aside class="product-review-summary">
+                        <div class="product-review-score">
+                            <strong>@averageRating.ToString("0.0")</strong>
+                            <span>/ 5.0</span>
+                        </div>
                         <div class="product-rating-stars product-rating-stars-large"
                              aria-label="Average rating @averageRating.ToString("0.0") out of 5">
                             @for (var star = 1; star <= 5; star++)
@@ -323,43 +307,40 @@
                             }
                         </div>
                         <p>Based on @reviewCount @(reviewCount == 1 ? "approved review" : "approved reviews")</p>
+                    </aside>
+
+                    <div class="product-review-list">
+                        @foreach (var review in approvedReviews)
+                        {
+                            var reviewerName = !string.IsNullOrWhiteSpace(review.User.FullName)
+                                ? review.User.FullName
+                                : review.User.UserName ?? "Customer";
+
+                            <article class="product-review-card">
+                                <div class="product-review-card-header">
+                                    <div class="product-review-author">
+                                        <div class="product-review-avatar" aria-hidden="true">
+                                            @reviewerName.Substring(0, 1).ToUpperInvariant()
+                                        </div>
+                                        <div>
+                                            <h3>@reviewerName</h3>
+                                            <time datetime="@review.CreatedAt.ToString("O")">
+                                                @review.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")
+                                            </time>
+                                        </div>
+                                    </div>
+
+                                    <div class="product-rating-stars" aria-label="Rating @review.Rating out of 5">
+                                        @for (var star = 1; star <= 5; star++)
+                                        {
+                                            <span class="@(star <= review.Rating ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                                        }
+                                    </div>
+                                </div>
+                                <p>@review.Comment</p>
+                            </article>
+                        }
                     </div>
-                </div>
-
-                <div class="product-review-list">
-                    @foreach (var review in approvedReviews)
-                    {
-                        var reviewerName = !string.IsNullOrWhiteSpace(review.User.FullName)
-                            ? review.User.FullName
-                            : review.User.UserName ?? "Customer";
-
-                        <article class="product-review-card">
-                            <div class="product-review-card-header">
-                                <div class="product-review-author">
-                                    <div class="product-review-avatar" aria-hidden="true">
-                                        @reviewerName.Substring(0, 1).ToUpperInvariant()
-                                    </div>
-
-                                    <div>
-                                        <h3>@reviewerName</h3>
-                                        <time datetime="@review.CreatedAt.ToString("O")">
-                                            @review.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")
-                                        </time>
-                                    </div>
-                                </div>
-
-                                <div class="product-rating-stars"
-                                     aria-label="Rating @review.Rating out of 5">
-                                    @for (var star = 1; star <= 5; star++)
-                                    {
-                                        <span class="@(star <= review.Rating ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
-                                    }
-                                </div>
-                            </div>
-
-                            <p>@review.Comment</p>
-                        </article>
-                    }
                 </div>
             }
         </section>
@@ -371,24 +352,11 @@
                     <span class="product-section-eyebrow">Administrator</span>
                     <h2>Product Management</h2>
                 </div>
-
                 <div class="product-admin-actions-buttons">
-                    <a asp-controller="Products"
-                       asp-action="Edit"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-outline-primary">
-                        Edit Product
-                    </a>
-
-                    <a asp-controller="ProductImages"
-                       asp-action="Index"
-                       asp-route-productId="@Model.Id"
-                       class="btn btn-secondary">
-                        Manage Images
-                    </a>
+                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Edit Product</a>
+                    <a asp-controller="ProductImages" asp-action="Index" asp-route-productId="@Model.Id" class="btn btn-secondary">Manage Images</a>
                 </div>
             </section>
         }
-
     </div>
 </div>

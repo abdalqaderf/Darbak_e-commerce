@@ -34,7 +34,8 @@ namespace Darbak.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(
-            int productId)
+            int productId,
+            string? returnUrl = null)
         {
             var product = await _context.Products
                 .Include(p => p.Images)
@@ -51,7 +52,7 @@ namespace Darbak.Controllers
                 TempData["CartError"] =
                     "This product is no longer available.";
 
-                return RedirectToAction(nameof(Index));
+                return RedirectAfterAdd(returnUrl);
             }
 
             if (product.StockQuantity <= 0)
@@ -59,7 +60,7 @@ namespace Darbak.Controllers
                 TempData["CartError"] =
                     "This product is currently out of stock.";
 
-                return RedirectToAction(nameof(Index));
+                return RedirectAfterAdd(returnUrl);
             }
 
             var cart = GetCart();
@@ -97,8 +98,7 @@ namespace Darbak.Controllers
                     TempData["CartError"] =
                         "You cannot add more than the available stock.";
 
-                    return RedirectToAction(
-                        nameof(Index));
+                    return RedirectAfterAdd(returnUrl);
                 }
 
                 existingItem.Quantity++;
@@ -130,7 +130,7 @@ namespace Darbak.Controllers
             TempData["CartSuccess"] =
                 "Product added to cart successfully.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectAfterAdd(returnUrl);
         }
 
         // =========================
@@ -275,6 +275,22 @@ namespace Darbak.Controllers
                 "Cart cleared successfully.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // =========================
+        // RETURN TO SHOPPING CONTEXT
+        // =========================
+        private IActionResult RedirectAfterAdd(string? returnUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(returnUrl) &&
+                Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            return RedirectToAction(
+                "Index",
+                "Catalog");
         }
 
         // =========================

@@ -84,6 +84,9 @@ namespace Darbak.Controllers
                             Description =
                                 c.Description,
 
+                            ImageUrl =
+                                c.ImageUrl,
+
                             ProductCount =
                                 c.Products.Count(p =>
                                     p.IsActive)

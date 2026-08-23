@@ -166,10 +166,10 @@
                                         <td>
                                             <strong class="order-product-name">@item.ProductName</strong>
                                         </td>
-                                        <td class="text-end text-nowrap">@item.UnitPrice.ToString("0.00")</td>
+                                        <td class="text-end text-nowrap">@item.UnitPrice.ToString("0.00") JD</td>
                                         <td class="text-center">@item.Quantity</td>
                                         <td class="text-end text-nowrap fw-bold">
-                                            @((item.UnitPrice * item.Quantity).ToString("0.00"))
+                                            @((item.UnitPrice * item.Quantity).ToString("0.00")) JD
                                         </td>
                                     </tr>
                                 }
@@ -192,7 +192,7 @@
 
                 <div class="order-summary-total">
                     <span>Grand Total</span>
-                    <strong>@Model.TotalAmount.ToString("0.00")</strong>
+                    <strong>@Model.TotalAmount.ToString("0.00") JD</strong>
                 </div>
 
                 <a asp-action="Invoice"

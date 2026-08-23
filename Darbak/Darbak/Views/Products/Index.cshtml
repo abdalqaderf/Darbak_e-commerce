@@ -100,7 +100,7 @@
                             <small>Created @product.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small>
                         </td>
                         <td>@product.Category.Name</td>
-                        <td><strong>@product.Price.ToString("0.00")</strong></td>
+                        <td><strong>@product.Price.ToString("0.00") JD</strong></td>
                         <td>
                             <span class="@(product.StockQuantity == 0 ? "status-badge status-badge--danger" : product.StockQuantity <= 5 ? "status-badge status-badge--warning" : "status-badge status-badge--success")">
                                 @product.StockQuantity

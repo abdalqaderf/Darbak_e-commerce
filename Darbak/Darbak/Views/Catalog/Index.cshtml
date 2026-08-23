@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Shop";
+    var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 
     var hasActiveFilters =
         !string.IsNullOrWhiteSpace(Model.Search) ||
@@ -21,330 +22,338 @@
     </nav>
 
     <header class="catalog-header">
-        <div>
-            <span class="catalog-kicker">Darbak Auto Parts</span>
-            <h1 id="catalogTitle">Shop Auto Parts</h1>
+        <div class="catalog-header-copy">
+            <span class="catalog-kicker">Darbak / Parts Catalog</span>
+            <h1 id="catalogTitle">Find the part. Keep moving.</h1>
             <p>
-                Search the catalog, browse by category, and find the right parts for your next upgrade.
+                Search active products, narrow by category, and compare the details that matter before you buy.
             </p>
         </div>
 
         <div class="catalog-result-summary" aria-live="polite">
+            <span>Catalog</span>
             <strong>@Model.Products.Count</strong>
-            <span>@(Model.Products.Count == 1 ? "product" : "products") found</span>
+            <small>@(Model.Products.Count == 1 ? "product shown" : "products shown")</small>
         </div>
     </header>
 
-    <form asp-controller="Catalog"
-          asp-action="Index"
-          method="get"
-          class="catalog-filter-panel"
-          aria-label="Product search and filters">
-
-        <div class="catalog-filter-grid">
-            <div class="catalog-filter-field catalog-search-field">
-                <label for="catalogSearch" class="form-label">Search</label>
-                <div class="catalog-input-wrap">
-                    <span class="catalog-input-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" focusable="false">
-                            <path d="m20.7 19.3-4.1-4.1a7.5 7.5 0 1 0-1.4 1.4l4.1 4.1 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z" />
-                        </svg>
-                    </span>
-                    <input type="search"
-                           id="catalogSearch"
-                           name="search"
-                           value="@Model.Search"
-                           class="form-control catalog-search-input"
-                           placeholder="Search products or categories..."
-                           autocomplete="off" />
+    <div class="catalog-shell">
+        <aside class="catalog-sidebar" aria-label="Catalog filters">
+            <div class="catalog-sidebar-heading">
+                <span>01</span>
+                <div>
+                    <strong>Filter products</strong>
+                    <small>Use only what you need.</small>
                 </div>
-                <div class="form-text">Partial product and category names are supported.</div>
             </div>
 
-            <div class="catalog-filter-field">
-                <label for="catalogCategory" class="form-label">Category</label>
-                <select id="catalogCategory"
-                        name="categoryId"
-                        class="form-select">
-                    <option value="">All Categories</option>
+            <form asp-controller="Catalog"
+                  asp-action="Index"
+                  method="get"
+                  class="catalog-filter-panel"
+                  aria-label="Product search and filters">
 
-                    @foreach (var category in Model.Categories)
-                    {
-                        if (Model.CategoryId == category.Id)
+                <div class="catalog-filter-field catalog-search-field">
+                    <label for="catalogSearch" class="form-label">Search</label>
+                    <div class="catalog-input-wrap">
+                        <span class="catalog-input-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="m20.7 19.3-4.1-4.1a7.5 7.5 0 1 0-1.4 1.4l4.1 4.1 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z" />
+                            </svg>
+                        </span>
+                        <input type="search"
+                               id="catalogSearch"
+                               name="search"
+                               value="@Model.Search"
+                               class="form-control catalog-search-input"
+                               placeholder="Product or category"
+                               autocomplete="off" />
+                    </div>
+                    <div class="form-text">Partial names are supported.</div>
+                </div>
+
+                <div class="catalog-filter-field">
+                    <label for="catalogCategory" class="form-label">Category</label>
+                    <select id="catalogCategory"
+                            name="categoryId"
+                            class="form-select">
+                        <option value="">All Categories</option>
+
+                        @foreach (var category in Model.Categories)
                         {
-                            <option value="@category.Id" selected>@category.Name</option>
+                            if (Model.CategoryId == category.Id)
+                            {
+                                <option value="@category.Id" selected>@category.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="catalog-filter-field">
+                    <label for="catalogSort" class="form-label">Sort</label>
+                    <select id="catalogSort"
+                            name="sort"
+                            class="form-select">
+                        @if (string.IsNullOrWhiteSpace(Model.Sort))
+                        {
+                            <option value="" selected>Newest first</option>
                         }
                         else
                         {
-                            <option value="@category.Id">@category.Name</option>
+                            <option value="">Newest first</option>
                         }
-                    }
-                </select>
-            </div>
 
-            <div class="catalog-filter-field">
-                <label for="catalogSort" class="form-label">Sort By</label>
-                <select id="catalogSort"
-                        name="sort"
-                        class="form-select">
-                    @if (string.IsNullOrWhiteSpace(Model.Sort))
+                        @if (Model.Sort == "price_asc")
+                        {
+                            <option value="price_asc" selected>Price: Low to High</option>
+                        }
+                        else
+                        {
+                            <option value="price_asc">Price: Low to High</option>
+                        }
+
+                        @if (Model.Sort == "price_desc")
+                        {
+                            <option value="price_desc" selected>Price: High to Low</option>
+                        }
+                        else
+                        {
+                            <option value="price_desc">Price: High to Low</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="catalog-filter-actions">
+                    <button type="submit" class="btn btn-accent catalog-apply-button">
+                        Apply
+                        <span aria-hidden="true">→</span>
+                    </button>
+
+                    @if (hasActiveFilters)
                     {
-                        <option value="" selected>Newest</option>
+                        <a asp-controller="Catalog"
+                           asp-action="Index"
+                           class="catalog-clear-button">
+                            Reset filters
+                        </a>
                     }
-                    else
+                </div>
+            </form>
+
+            @if (hasActiveFilters)
+            {
+                <div class="catalog-filter-state" aria-label="Active filters">
+                    <span class="catalog-active-label">Active selection</span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Search))
                     {
-                        <option value="">Newest</option>
+                        <div class="catalog-filter-state-row">
+                            <span>Search</span>
+                            <strong>@Model.Search</strong>
+                        </div>
+                    }
+
+                    @if (selectedCategory is not null)
+                    {
+                        <div class="catalog-filter-state-row">
+                            <span>Category</span>
+                            <strong>@selectedCategory.Name</strong>
+                        </div>
                     }
 
                     @if (Model.Sort == "price_asc")
                     {
-                        <option value="price_asc" selected>Price: Low to High</option>
+                        <div class="catalog-filter-state-row">
+                            <span>Sort</span>
+                            <strong>Price ↑</strong>
+                        </div>
                     }
-                    else
+                    else if (Model.Sort == "price_desc")
                     {
-                        <option value="price_asc">Price: Low to High</option>
+                        <div class="catalog-filter-state-row">
+                            <span>Sort</span>
+                            <strong>Price ↓</strong>
+                        </div>
                     }
-
-                    @if (Model.Sort == "price_desc")
-                    {
-                        <option value="price_desc" selected>Price: High to Low</option>
-                    }
-                    else
-                    {
-                        <option value="price_desc">Price: High to Low</option>
-                    }
-                </select>
-            </div>
-
-            <div class="catalog-filter-actions">
-                <button type="submit" class="btn btn-accent catalog-apply-button">
-                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                        <path d="M4 5h16v2H4V5Zm3 6h10v2H7v-2Zm3 6h4v2h-4v-2Z" />
-                    </svg>
-                    Apply Filters
-                </button>
-
-                @if (hasActiveFilters)
-                {
-                    <a asp-controller="Catalog"
-                       asp-action="Index"
-                       class="btn btn-outline-secondary catalog-clear-button">
-                        Clear
-                    </a>
-                }
-            </div>
-        </div>
-    </form>
-
-    @if (hasActiveFilters)
-    {
-        <div class="catalog-active-filters" aria-label="Active filters">
-            <span class="catalog-active-label">Active:</span>
-
-            @if (!string.IsNullOrWhiteSpace(Model.Search))
-            {
-                <span class="catalog-filter-chip">
-                    Search: <strong>@Model.Search</strong>
-                </span>
+                </div>
             }
+        </aside>
 
-            @if (selectedCategory is not null)
-            {
-                <span class="catalog-filter-chip">
-                    Category: <strong>@selectedCategory.Name</strong>
-                </span>
-            }
-
-            @if (Model.Sort == "price_asc")
-            {
-                <span class="catalog-filter-chip">Price: Low to High</span>
-            }
-            else if (Model.Sort == "price_desc")
-            {
-                <span class="catalog-filter-chip">Price: High to Low</span>
-            }
-        </div>
-    }
-
-    @if (!Model.Products.Any())
-    {
-        <div class="catalog-empty-state">
-            <div class="catalog-empty-icon" aria-hidden="true">
-                <svg viewBox="0 0 64 64" focusable="false">
-                    <path d="M27 8a19 19 0 1 0 11.8 33.9L51 54l3-3-12.1-12.2A19 19 0 0 0 27 8Zm0 4a15 15 0 1 1 0 30 15 15 0 0 1 0-30Zm-7 13h14v4H20v-4Z" />
-                </svg>
-            </div>
-            <h2>No products found</h2>
-            <p>Try a different search term or clear the current filters to browse all products.</p>
-            <a asp-controller="Catalog"
-               asp-action="Index"
-               class="btn btn-accent">
-                Browse All Products
-            </a>
-        </div>
-    }
-    else
-    {
-        <div class="catalog-results-bar">
-            <div>
-                <span class="catalog-results-count">
-                    Showing <strong>@Model.Products.Count</strong>
-                    @(Model.Products.Count == 1 ? "result" : "results")
-                </span>
+        <div class="catalog-main">
+            <div class="catalog-results-bar">
+                <div>
+                    <span class="catalog-results-eyebrow">02 / Products</span>
+                    <span class="catalog-results-count">
+                        <strong>@Model.Products.Count</strong>
+                        @(Model.Products.Count == 1 ? "result" : "results")
+                    </span>
+                </div>
 
                 @if (selectedCategory is not null)
                 {
-                    <span class="catalog-results-context">in @selectedCategory.Name</span>
+                    <span class="catalog-results-context">@selectedCategory.Name</span>
+                }
+                else
+                {
+                    <span class="catalog-results-context">All categories</span>
                 }
             </div>
-        </div>
 
-        <div class="catalog-product-grid">
-            @foreach (var product in Model.Products)
+            @if (!Model.Products.Any())
             {
-                var productTitleId = $"catalog-product-{product.Id}";
+                <div class="catalog-empty-state">
+                    <span class="catalog-empty-index">00</span>
+                    <h2>No products found</h2>
+                    <p>Try a different search term or reset the filters to return to the full catalog.</p>
+                    <a asp-controller="Catalog"
+                       asp-action="Index"
+                       class="btn btn-accent">
+                        Browse all products
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="catalog-product-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        var productTitleId = $"catalog-product-{product.Id}";
 
-                <article class="catalog-product-card" aria-labelledby="@productTitleId">
-                    <div class="catalog-product-media">
-                        <a asp-controller="Products"
-                           asp-action="Details"
-                           asp-route-id="@product.Id"
-                           class="catalog-product-image-link"
-                           aria-label="View @product.Name">
+                        <article class="catalog-product-card" aria-labelledby="@productTitleId">
+                            <div class="catalog-product-media">
+                                <a asp-controller="Products"
+                                   asp-action="Details"
+                                   asp-route-id="@product.Id"
+                                   class="catalog-product-image-link"
+                                   aria-label="View @product.Name">
 
-                            @if (!string.IsNullOrWhiteSpace(product.MainImageUrl))
-                            {
-                                <img src="@product.MainImageUrl"
-                                     alt="@product.Name"
-                                     class="catalog-product-image"
-                                     loading="lazy" />
-                            }
-                            else
-                            {
-                                <span class="catalog-product-placeholder">
-                                    <svg viewBox="0 0 64 64" focusable="false" aria-hidden="true">
-                                        <path d="M13 38h5l4-10c1.5-4 5-7 9.5-7h10c4 0 7.5 2.2 9.3 5.8L56 38h2a3 3 0 0 1 3 3v8h-5a8 8 0 0 1-16 0H25a8 8 0 0 1-16 0H4v-5c0-3.3 2.7-6 6-6h3Zm12.5-8L22 38h29l-3.8-8.2a6 6 0 0 0-5.4-3.5H31.5a6.5 6.5 0 0 0-6 3.7ZM17 45a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm31 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" />
-                                    </svg>
-                                    <small>No image available</small>
-                                </span>
-                            }
-                        </a>
+                                    <span class="catalog-product-placeholder" aria-hidden="true">
+                                        <strong>DBK</strong>
+                                        <small>No image</small>
+                                    </span>
 
-                        <div class="catalog-product-stock">
-                            @if (product.StockQuantity > 0)
-                            {
-                                <span class="badge bg-success">In Stock</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">Out of Stock</span>
-                            }
-                        </div>
-
-                        <div class="catalog-product-wishlist">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <form asp-controller="Wishlist"
-                                      asp-action="Add"
-                                      method="post">
-                                    <input type="hidden"
-                                           name="productId"
-                                           value="@product.Id" />
-                                    <button type="submit"
-                                            class="catalog-icon-button"
-                                            aria-label="Add @product.Name to wishlist"
-                                            title="Add to wishlist">
-                                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                            <path d="M12 20.7 10.6 19.4C5.4 14.8 2 11.7 2 7.9 2 4.8 4.4 2.5 7.5 2.5c1.8 0 3.5.8 4.5 2.1 1-1.3 2.7-2.1 4.5-2.1C19.6 2.5 22 4.8 22 7.9c0 3.8-3.4 6.9-8.6 11.5L12 20.7Zm4.5-16.2c-1.6 0-3.1.8-4 2.1h-1c-.9-1.3-2.4-2.1-4-2.1C5.5 4.5 4 6 4 7.9c0 2.8 2.8 5.5 8 10.1 5.2-4.6 8-7.3 8-10.1 0-1.9-1.5-3.4-3.5-3.4Z" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <a asp-area="Identity"
-                                   asp-page="/Account/Login"
-                                   class="catalog-icon-button"
-                                   aria-label="Sign in to save @product.Name to wishlist"
-                                   title="Sign in to save">
-                                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                        <path d="M12 20.7 10.6 19.4C5.4 14.8 2 11.7 2 7.9 2 4.8 4.4 2.5 7.5 2.5c1.8 0 3.5.8 4.5 2.1 1-1.3 2.7-2.1 4.5-2.1C19.6 2.5 22 4.8 22 7.9c0 3.8-3.4 6.9-8.6 11.5L12 20.7Zm4.5-16.2c-1.6 0-3.1.8-4 2.1h-1c-.9-1.3-2.4-2.1-4-2.1C5.5 4.5 4 6 4 7.9c0 2.8 2.8 5.5 8 10.1 5.2-4.6 8-7.3 8-10.1 0-1.9-1.5-3.4-3.5-3.4Z" />
-                                    </svg>
+                                    @if (!string.IsNullOrWhiteSpace(product.MainImageUrl))
+                                    {
+                                        <img src="@product.MainImageUrl"
+                                             alt="@product.Name"
+                                             class="catalog-product-image"
+                                             loading="lazy"
+                                             onerror="this.hidden=true" />
+                                    }
                                 </a>
-                            }
-                        </div>
-                    </div>
 
-                    <div class="catalog-product-body">
-                        <div class="catalog-product-category">@product.CategoryName</div>
-
-                        <h2 id="@productTitleId" class="catalog-product-name">
-                            <a asp-controller="Products"
-                               asp-action="Details"
-                               asp-route-id="@product.Id">
-                                @product.Name
-                            </a>
-                        </h2>
-
-                        <div class="catalog-product-rating">
-                            @if (product.ReviewCount > 0)
-                            {
-                                <span class="catalog-rating-star" aria-hidden="true">★</span>
-                                <strong>@product.AverageRating.ToString("0.0")</strong>
-                                <span class="catalog-review-count">
-                                    (@product.ReviewCount @(product.ReviewCount == 1 ? "review" : "reviews"))
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="catalog-review-count">No reviews yet</span>
-                            }
-                        </div>
-
-                        <div class="catalog-product-footer">
-                            <div class="catalog-product-price">
-                                <span class="visually-hidden">Price:</span>
-                                @product.Price.ToString("0.00")
+                                <div class="catalog-product-wishlist">
+                                    @if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        <form asp-controller="Wishlist"
+                                              asp-action="Add"
+                                              method="post">
+                                            <input type="hidden"
+                                                   name="productId"
+                                                   value="@product.Id" />
+                                            <button type="submit"
+                                                    class="catalog-icon-button"
+                                                    aria-label="Add @product.Name to wishlist"
+                                                    title="Add to wishlist">
+                                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                                    <path d="M12 20.7 10.6 19.4C5.4 14.8 2 11.7 2 7.9 2 4.8 4.4 2.5 7.5 2.5c1.8 0 3.5.8 4.5 2.1 1-1.3 2.7-2.1 4.5-2.1C19.6 2.5 22 4.8 22 7.9c0 3.8-3.4 6.9-8.6 11.5L12 20.7Zm4.5-16.2c-1.6 0-3.1.8-4 2.1h-1c-.9-1.3-2.4-2.1-4-2.1C5.5 4.5 4 6 4 7.9c0 2.8 2.8 5.5 8 10.1 5.2-4.6 8-7.3 8-10.1 0-1.9-1.5-3.4-3.5-3.4Z" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <a asp-area="Identity"
+                                           asp-page="/Account/Login"
+                                           class="catalog-icon-button"
+                                           aria-label="Sign in to save @product.Name to wishlist"
+                                           title="Sign in to save">
+                                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                                <path d="M12 20.7 10.6 19.4C5.4 14.8 2 11.7 2 7.9 2 4.8 4.4 2.5 7.5 2.5c1.8 0 3.5.8 4.5 2.1 1-1.3 2.7-2.1 4.5-2.1C19.6 2.5 22 4.8 22 7.9c0 3.8-3.4 6.9-8.6 11.5L12 20.7Zm4.5-16.2c-1.6 0-3.1.8-4 2.1h-1c-.9-1.3-2.4-2.1-4-2.1C5.5 4.5 4 6 4 7.9c0 2.8 2.8 5.5 8 10.1 5.2-4.6 8-7.3 8-10.1 0-1.9-1.5-3.4-3.5-3.4Z" />
+                                            </svg>
+                                        </a>
+                                    }
+                                </div>
                             </div>
 
-                            <a asp-controller="Products"
-                               asp-action="Details"
-                               asp-route-id="@product.Id"
-                               class="catalog-details-link">
-                                View Details
-                                <span aria-hidden="true">→</span>
-                            </a>
-                        </div>
+                            <div class="catalog-product-body">
+                                <span class="catalog-product-category">@product.CategoryName</span>
 
-                        @if (product.StockQuantity > 0)
-                        {
-                            <form asp-controller="Cart"
-                                  asp-action="AddToCart"
-                                  method="post"
-                                  class="catalog-cart-form">
-                                <input type="hidden"
-                                       name="productId"
-                                       value="@product.Id" />
-                                <button type="submit"
-                                        class="btn btn-accent catalog-cart-button">
-                                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                        <path d="M3 3h2.2l1.7 9.3a2 2 0 0 0 2 1.7h8a2 2 0 0 0 1.9-1.4L21 6H7.1l-.4-2H3V3Zm4.5 5h10.7l-1.4 4H8.9L7.5 8ZM9 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
-                                    </svg>
-                                    Add to Cart
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <button type="button"
-                                    class="btn btn-secondary catalog-cart-button"
-                                    disabled>
-                                Out of Stock
-                            </button>
-                        }
-                    </div>
-                </article>
+                                <h2 id="@productTitleId" class="catalog-product-name">
+                                    <a asp-controller="Products"
+                                       asp-action="Details"
+                                       asp-route-id="@product.Id">
+                                        @product.Name
+                                    </a>
+                                </h2>
+
+                                <div class="catalog-product-meta-row">
+                                    <span class="catalog-product-rating @(product.ReviewCount == 0 ? "catalog-product-rating--empty" : "")">
+                                        @if (product.ReviewCount > 0)
+                                        {
+                                            <span class="catalog-rating-star" aria-hidden="true">★</span>
+                                            <strong>@product.AverageRating.ToString("0.0")</strong>
+                                            <small>(@product.ReviewCount)</small>
+                                        }
+                                        else
+                                        {
+                                            <small>No reviews</small>
+                                        }
+                                    </span>
+
+                                    <span class="@(product.StockQuantity > 0 ? "catalog-stock catalog-stock--in" : "catalog-stock catalog-stock--out")">
+                                        @(product.StockQuantity > 0 ? "In stock" : "Out of stock")
+                                    </span>
+                                </div>
+
+                                <div class="catalog-product-footer">
+                                    <strong class="catalog-product-price">
+                                        @product.Price.ToString("0.00") <small>JD</small>
+                                    </strong>
+
+                                    @if (product.StockQuantity > 0)
+                                    {
+                                        <form asp-controller="Cart"
+                                              asp-action="AddToCart"
+                                              method="post"
+                                              class="catalog-cart-form">
+                                            <input type="hidden"
+                                                   name="productId"
+                                                   value="@product.Id" />
+                                            <input type="hidden"
+                                                   name="returnUrl"
+                                                   value="@currentReturnUrl" />
+                                            <button type="submit"
+                                                    class="catalog-cart-button"
+                                                    aria-label="Add @product.Name to cart"
+                                                    title="Add to cart">
+                                                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                                    <path d="M3 3h2.2l1.7 9.3a2 2 0 0 0 2 1.7h8a2 2 0 0 0 1.9-1.4L21 6H7.1l-.4-2H3V3Zm4.5 5h10.7l-1.4 4H8.9L7.5 8ZM9 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Products"
+                                           asp-action="Details"
+                                           asp-route-id="@product.Id"
+                                           class="catalog-cart-button catalog-cart-button--disabled"
+                                           aria-label="View @product.Name details"
+                                           title="View details">
+                                            <span aria-hidden="true">→</span>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
             }
         </div>
-    }
+    </div>
 </section>

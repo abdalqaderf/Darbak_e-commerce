@@ -1,7 +1,66 @@
 @model Darbak.Models.Category
-@{ Layout = "_AdminLayout"; ViewData["Title"] = "Delete Category"; }
-<div class="admin-page-heading"><div><span class="admin-page-heading__eyebrow">Catalog</span><h1>Delete Category</h1><p>Review the category before deletion.</p></div><a asp-action="Index" class="btn btn-outline-secondary">Back to Categories</a></div>
-<section class="admin-form-card admin-form-card--danger"><div class="admin-definition-grid"><div><span>Category</span><strong>@Model.Name</strong></div><div class="admin-definition-grid__full"><span>Description</span><strong>@(string.IsNullOrWhiteSpace(Model.Description) ? "No description" : Model.Description)</strong></div></div>
-@if (Model.Products.Any()) { <div class="alert alert-danger mt-4"><strong>Deletion blocked.</strong> This category still contains products. Move or remove those products first.</div><div class="admin-form-actions"><a asp-action="Index" class="btn btn-outline-secondary">Back</a></div> }
-else { <div class="alert alert-warning mt-4">This action permanently removes the category.</div><form asp-action="Delete" method="post" class="admin-form-actions"><input asp-for="Id" type="hidden" /><button type="submit" class="btn btn-danger">Delete Category</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></form> }
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Delete Category";
+}
+
+<div class="admin-page-heading">
+    <div>
+        <span class="admin-page-heading__eyebrow">Catalog</span>
+        <h1>Delete Category</h1>
+        <p>Review the category before deletion.</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Back to Categories
+    </a>
+</div>
+
+<section class="admin-form-card admin-form-card--danger">
+    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        <div class="admin-category-delete-preview">
+            <img src="@Model.ImageUrl"
+                 alt="@Model.Name"
+                 onerror="this.parentElement.hidden=true" />
+        </div>
+    }
+
+    <div class="admin-definition-grid">
+        <div>
+            <span>Category</span>
+            <strong>@Model.Name</strong>
+        </div>
+        <div class="admin-definition-grid__full">
+            <span>Description</span>
+            <strong>
+                @(string.IsNullOrWhiteSpace(Model.Description)
+                    ? "No description"
+                    : Model.Description)
+            </strong>
+        </div>
+    </div>
+
+    @if (Model.Products.Any())
+    {
+        <div class="alert alert-danger mt-4">
+            <strong>Deletion blocked.</strong>
+            This category still contains products. Move or remove those products first.
+        </div>
+        <div class="admin-form-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-4">
+            This action permanently removes the category and its uploaded image.
+        </div>
+        <form asp-action="Delete" method="post" class="admin-form-actions">
+            <input asp-for="Id" type="hidden" />
+            <button type="submit" class="btn btn-danger">Delete Category</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    }
 </section>

@@ -29,7 +29,15 @@ else
                         {
                             <form asp-action="SetMain" method="post"><input type="hidden" name="id" value="@image.Id" /><button type="submit" class="admin-table-action">Set as Main</button></form>
                         }
-                        <form asp-action="Delete" method="post" onsubmit="return confirm('Delete this image?');"><input type="hidden" name="id" value="@image.Id" /><button type="submit" class="admin-table-action admin-table-action--danger">Delete</button></form>
+                        <form asp-action="Delete"
+                              method="post"
+                              data-confirm
+                              data-confirm-title="Delete image?"
+                              data-confirm-message="Delete this product image?"
+                              data-confirm-button="Delete">
+                            <input type="hidden" name="id" value="@image.Id" />
+                            <button type="submit" class="admin-table-action admin-table-action--danger">Delete</button>
+                        </form>
                     </div>
                 </div>
             </article>

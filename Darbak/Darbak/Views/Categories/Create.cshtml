@@ -1,5 +1,70 @@
 @model Darbak.Models.Category
-@{ Layout = "_AdminLayout"; ViewData["Title"] = "Add Category"; }
-<div class="admin-page-heading"><div><span class="admin-page-heading__eyebrow">Catalog</span><h1>Add Category</h1><p>Create a category for organizing products.</p></div><a asp-action="Index" class="btn btn-outline-secondary">Back to Categories</a></div>
-<section class="admin-form-card"><form asp-action="Create" method="post"><div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div><div class="admin-form-grid"><div class="admin-form-field admin-form-field--full"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div><div class="admin-form-field admin-form-field--full"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control" rows="5"></textarea><span asp-validation-for="Description" class="text-danger"></span></div></div><div class="admin-form-actions"><button type="submit" class="btn btn-primary">Create Category</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></div></form></section>
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add Category";
+}
+
+<div class="admin-page-heading">
+    <div>
+        <span class="admin-page-heading__eyebrow">Catalog</span>
+        <h1>Add Category</h1>
+        <p>Create a category and optionally add its storefront image.</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Back to Categories
+    </a>
+</div>
+
+<section class="admin-form-card">
+    <form asp-action="Create"
+          method="post"
+          enctype="multipart/form-data">
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary-errors"></div>
+
+        <div class="admin-form-grid">
+            <div class="admin-form-field admin-form-field--full">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="admin-form-field admin-form-field--full">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="admin-form-field admin-form-field--full">
+                <label for="imageFile">Category Image</label>
+                <input id="imageFile"
+                       name="imageFile"
+                       type="file"
+                       class="form-control"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+                <span class="admin-field-hint">
+                    JPG, JPEG, PNG, or WebP. Maximum size: 5 MB.
+                </span>
+                @Html.ValidationMessage("imageFile", null, new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="admin-form-actions">
+            <button type="submit" class="btn btn-primary">
+                Create Category
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

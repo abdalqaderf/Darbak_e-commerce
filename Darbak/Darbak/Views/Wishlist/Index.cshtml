@@ -1,84 +1,60 @@
 ﻿@model IEnumerable<Darbak.Models.WishlistItem>
 
 @{
-    ViewData["Title"] = "My Wishlist";
+    ViewData["Title"] = "Wishlist";
+    var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
     var wishlistItems = Model.ToList();
 }
 
 <section class="wishlist-page">
     <div class="container">
-
         <nav class="darbak-breadcrumb" aria-label="Breadcrumb">
             <ol>
-                <li>
-                    <a asp-controller="Home" asp-action="Index">Home</a>
-                </li>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li aria-hidden="true">/</li>
                 <li aria-current="page">Wishlist</li>
             </ol>
         </nav>
 
         <header class="wishlist-header">
             <div>
-                <span class="wishlist-eyebrow">Saved Products</span>
-                <h1>My Wishlist</h1>
-                <p>
-                    Keep your favorite parts in one place and move them to your cart when you are ready.
-                </p>
+                <span class="wishlist-eyebrow">Saved</span>
+                <h1>Wishlist</h1>
             </div>
 
-            @if (wishlistItems.Count > 0)
-            {
-                <div class="wishlist-count" aria-label="@wishlistItems.Count saved products">
-                    <span class="wishlist-count-number">@wishlistItems.Count</span>
-                    <span class="wishlist-count-label">
-                        @(wishlistItems.Count == 1 ? "Saved Item" : "Saved Items")
+            <div class="wishlist-header-actions">
+                @if (wishlistItems.Count > 0)
+                {
+                    <span class="wishlist-inline-count">
+                        @wishlistItems.Count @(wishlistItems.Count == 1 ? "product" : "products")
                     </span>
-                </div>
-            }
+                }
+
+                <a asp-controller="Catalog" asp-action="Index" class="wishlist-browse-link">
+                    Continue Shopping
+                    <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                        <path d="m13.4 5.6-1.4 1.4 4 4H5v2h11l-4 4 1.4 1.4L19.8 12l-6.4-6.4Z" fill="currentColor" />
+                    </svg>
+                </a>
+            </div>
         </header>
 
         @if (wishlistItems.Count == 0)
         {
-            <div class="wishlist-empty-state">
+            <section class="wishlist-empty-state" aria-labelledby="wishlist-empty-title">
                 <div class="wishlist-empty-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="34" height="34" focusable="false">
-                        <path d="M12 21s-7.5-4.35-9.6-8.7C.8 8.95 2.55 5 6.45 5c2.05 0 3.35 1.15 4.05 2.2C11.2 6.15 12.5 5 14.55 5c3.9 0 5.65 3.95 4.05 7.3C16.5 16.65 12 21 12 21Zm0-2.45c2.65-1.8 5.35-4.5 6.05-6.05 1.05-2.2.05-5.5-3.5-5.5-1.55 0-2.8.95-3.55 2.4h-2C8.25 7.95 7 7 5.45 7c-3.55 0-4.55 3.3-3.5 5.5.75 1.55 3.4 4.25 6.05 6.05L12 21l4-2.45Z"
-                              fill="currentColor" />
+                        <path d="M12 21s-7.5-4.35-9.6-8.7C.8 8.95 2.55 5 6.45 5c2.05 0 3.35 1.15 4.05 2.2C11.2 6.15 12.5 5 14.55 5c3.9 0 5.65 3.95 4.05 7.3C16.5 16.65 12 21 12 21Zm0-2.45c2.65-1.8 5.35-4.5 6.05-6.05 1.05-2.2.05-5.5-3.5-5.5-1.55 0-2.8.95-3.55 2.4h-2C8.25 7.95 7 7 5.45 7c-3.55 0-4.55 3.3-3.5 5.5.75 1.55 3.4 4.25 6.05 6.05L12 21l4-2.45Z" fill="currentColor" />
                     </svg>
                 </div>
-
-                <h2>Your wishlist is empty</h2>
-                <p>
-                    Save products you are interested in and they will appear here for easy access later.
-                </p>
-
-                <a asp-controller="Catalog"
-                   asp-action="Index"
-                   class="btn btn-accent wishlist-empty-cta">
-                    Start Shopping
+                <h2 id="wishlist-empty-title">Your wishlist is empty</h2>
+                <a asp-controller="Catalog" asp-action="Index" class="btn btn-accent wishlist-empty-cta">
+                    Shop Products
                 </a>
-            </div>
+            </section>
         }
         else
         {
-            <div class="wishlist-toolbar">
-                <p>
-                    @(wishlistItems.Count == 1
-                        ? "1 product saved to your wishlist."
-                        : $"{wishlistItems.Count} products saved to your wishlist.")
-                </p>
-
-                <a asp-controller="Catalog"
-                   asp-action="Index"
-                   class="wishlist-browse-link">
-                    Continue Shopping
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path d="m13.4 5.6-1.4 1.4 4 4H5v2h11l-4 4 1.4 1.4L19.8 12l-6.4-6.4Z"
-                              fill="currentColor" />
-                    </svg>
-                </a>
-            </div>
-
             <div class="wishlist-grid">
                 @foreach (var item in wishlistItems)
                 {
@@ -87,7 +63,6 @@
                         .OrderByDescending(i => i.IsMain)
                         .ThenBy(i => i.Id)
                         .FirstOrDefault();
-
                     var productTitleId = $"wishlist-product-{product.Id}";
                     var isAvailable = product.IsActive && product.StockQuantity > 0;
 
@@ -100,21 +75,20 @@
                                    asp-route-id="@product.Id"
                                    class="wishlist-image-link"
                                    aria-label="View @product.Name">
-
                                     @if (mainImage != null)
                                     {
                                         <img src="@mainImage.ImageUrl"
                                              alt="@product.Name"
-                                             loading="lazy" />
+                                             loading="lazy"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                        <span class="wishlist-image-placeholder wishlist-image-fallback" aria-hidden="true">
+                                            <span>DBK</span>
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="wishlist-image-placeholder">
-                                            <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" focusable="false">
-                                                <path d="M4 4h16v16H4V4Zm2 2v8.6l3.2-3.2 2.3 2.3 3.2-3.2L18 13.8V6H6Zm0 12h12v-1.4l-3.3-3.3-3.2 3.2-2.3-2.3L6 17.4V18Zm2-9a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0Z"
-                                                      fill="currentColor" />
-                                            </svg>
-                                            <span>No Image</span>
+                                        <span class="wishlist-image-placeholder" aria-hidden="true">
+                                            <span>DBK</span>
                                         </span>
                                     }
                                 </a>
@@ -124,19 +98,11 @@
                                 <div class="wishlist-image-link wishlist-image-disabled">
                                     @if (mainImage != null)
                                     {
-                                        <img src="@mainImage.ImageUrl"
-                                             alt="@product.Name"
-                                             loading="lazy" />
+                                        <img src="@mainImage.ImageUrl" alt="@product.Name" loading="lazy" />
                                     }
                                     else
                                     {
-                                        <span class="wishlist-image-placeholder">
-                                            <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" focusable="false">
-                                                <path d="M4 4h16v16H4V4Zm2 2v8.6l3.2-3.2 2.3 2.3 3.2-3.2L18 13.8V6H6Zm0 12h12v-1.4l-3.3-3.3-3.2 3.2-2.3-2.3L6 17.4V18Zm2-9a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0Z"
-                                                      fill="currentColor" />
-                                            </svg>
-                                            <span>No Image</span>
-                                        </span>
+                                        <span class="wishlist-image-placeholder" aria-hidden="true"><span>DBK</span></span>
                                     }
                                 </div>
                             }
@@ -144,43 +110,43 @@
                             <form asp-controller="Wishlist"
                                   asp-action="Remove"
                                   method="post"
-                                  class="wishlist-remove-form">
+                                  class="wishlist-remove-form"
+                                  data-confirm
+                                  data-confirm-title="Remove from wishlist?"
+                                  data-confirm-message="Remove @product.Name from your wishlist?"
+                                  data-confirm-button="Remove">
                                 <input type="hidden" name="id" value="@item.Id" />
                                 <button type="submit"
                                         class="wishlist-remove-button"
                                         aria-label="Remove @product.Name from wishlist"
-                                        title="Remove from wishlist"
-                                        onclick="return confirm('Remove this product from your wishlist?');">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                                        <path d="M7 6V4h10v2h5v2h-2v12H4V8H2V6h5Zm2 0h6V5H9v1Zm-3 2v10h12V8H6Zm3 2h2v6H9v-6Zm4 0h2v6h-2v-6Z"
-                                              fill="currentColor" />
+                                        title="Remove">
+                                    <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                                        <path d="M7 6V4h10v2h5v2h-2v12H4V8H2V6h5Zm2 0h6V5H9v1Zm-3 2v10h12V8H6Zm3 2h2v6H9v-6Zm4 0h2v6h-2v-6Z" fill="currentColor" />
                                     </svg>
                                 </button>
                             </form>
                         </div>
 
                         <div class="wishlist-card-body">
-                            <div class="wishlist-card-status-row">
+                            <div class="wishlist-card-meta">
                                 @if (!product.IsActive)
                                 {
-                                    <span class="stock-badge stock-badge-unavailable">Unavailable</span>
+                                    <span class="wishlist-stock wishlist-stock--out"><i></i>Unavailable</span>
                                 }
                                 else if (product.StockQuantity <= 0)
                                 {
-                                    <span class="stock-badge stock-badge-out">Out of Stock</span>
+                                    <span class="wishlist-stock wishlist-stock--out"><i></i>Out of stock</span>
                                 }
                                 else
                                 {
-                                    <span class="stock-badge stock-badge-in">In Stock</span>
+                                    <span class="wishlist-stock wishlist-stock--in"><i></i>In stock</span>
                                 }
                             </div>
 
                             @if (product.IsActive)
                             {
                                 <h2 id="@productTitleId" class="wishlist-product-name">
-                                    <a asp-controller="Products"
-                                       asp-action="Details"
-                                       asp-route-id="@product.Id">
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id">
                                         @product.Name
                                     </a>
                                 </h2>
@@ -192,23 +158,17 @@
                                 </h2>
                             }
 
-                            <div class="wishlist-price-row">
-                                <span class="wishlist-price-label">Price</span>
-                                <strong class="wishlist-price">@product.Price.ToString("0.00")</strong>
-                            </div>
+                            <strong class="wishlist-price">@product.Price.ToString("0.00") JD</strong>
 
                             <div class="wishlist-card-actions">
                                 @if (isAvailable)
                                 {
-                                    <form asp-controller="Cart"
-                                          asp-action="AddToCart"
-                                          method="post"
-                                          class="wishlist-cart-form">
+                                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="wishlist-cart-form">
                                         <input type="hidden" name="productId" value="@product.Id" />
+                                        <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
                                         <button type="submit" class="btn btn-accent wishlist-add-cart">
-                                            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                                                <path d="M3 3h2.25l1.7 9.35A2 2 0 0 0 8.92 14h7.98a2 2 0 0 0 1.9-1.38L21 6H7.1l-.36-2H3V3Zm4.47 5H18.2l-1.35 4H8.92L7.47 8ZM9 16.5A1.5 1.5 0 1 0 9 19.5 1.5 1.5 0 0 0 9 16.5Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
-                                                      fill="currentColor" />
+                                            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                                                <path d="M3 3h2.25l1.7 9.35A2 2 0 0 0 8.92 14h7.98a2 2 0 0 0 1.9-1.38L21 6H7.1l-.36-2H3V3Zm4.47 5H18.2l-1.35 4H8.92L7.47 8ZM9 16.5A1.5 1.5 0 1 0 9 19.5 1.5 1.5 0 0 0 9 16.5Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" fill="currentColor" />
                                             </svg>
                                             Add to Cart
                                         </button>
@@ -216,9 +176,7 @@
                                 }
                                 else
                                 {
-                                    <button type="button"
-                                            class="btn btn-secondary wishlist-add-cart"
-                                            disabled>
+                                    <button type="button" class="btn wishlist-add-cart wishlist-add-cart--disabled" disabled>
                                         @(product.IsActive ? "Out of Stock" : "Unavailable")
                                     </button>
                                 }
@@ -229,7 +187,7 @@
                                        asp-action="Details"
                                        asp-route-id="@product.Id"
                                        class="wishlist-view-link">
-                                        View Details
+                                        Details
                                     </a>
                                 }
                             </div>
