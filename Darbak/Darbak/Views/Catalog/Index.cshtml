@@ -231,7 +231,7 @@
                                    class="catalog-product-image-link"
                                    aria-label="View @product.Name">
 
-                                    <span class="catalog-product-placeholder" aria-hidden="true">
+                                    <span class="catalog-product-placeholder @(!string.IsNullOrWhiteSpace(product.MainImageUrl) ? "is-hidden" : string.Empty)" aria-hidden="true">
                                         <strong>DBK</strong>
                                         <small>No image</small>
                                     </span>
@@ -242,7 +242,7 @@
                                              alt="@product.Name"
                                              class="catalog-product-image"
                                              loading="lazy"
-                                             onerror="this.hidden=true" />
+                                             onerror="this.hidden=true; this.previousElementSibling.classList.remove('is-hidden');" />
                                     }
                                 </a>
 

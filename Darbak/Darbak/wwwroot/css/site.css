@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --color-primary: #111827;
     --color-primary-hover: #1f2937;
     --color-primary-soft: #e5e7eb;
@@ -3294,9 +3294,13 @@ button.catalog-cart-button {
 
 .product-gallery-frame {
     display: grid;
-    grid-template-columns: 82px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: .8rem;
     min-width: 0;
+}
+
+.product-gallery-frame.has-thumbnails {
+    grid-template-columns: 82px minmax(0, 1fr);
 }
 
 .product-main-media {
@@ -3980,7 +3984,7 @@ button.catalog-cart-button {
         gap: 2rem;
     }
 
-    .product-gallery-frame {
+    .product-gallery-frame.has-thumbnails {
         grid-template-columns: 72px minmax(0, 1fr);
     }
 
@@ -12407,5 +12411,235 @@ html body .site-header .site-nav-toggler-lines span {
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border: 0;
+    }
+}
+
+/* =========================================================
+   Darbak brand pass — fixed public navbar, real logo,
+   product-media technical backdrop, Darbak Pick spotlight
+   ========================================================= */
+
+/* Public shell only: keep the fixed navbar from covering page content. */
+.site-shell {
+    padding-top: 68px;
+}
+
+html {
+    scroll-padding-top: 82px;
+}
+
+html body .site-header {
+    position: fixed !important;
+    inset: 0 0 auto 0;
+    z-index: 1080;
+    width: 100%;
+    min-height: 68px;
+    backdrop-filter: saturate(115%) blur(8px);
+    background: rgba(10, 17, 29, .97);
+}
+
+html body .site-header-grid {
+    min-height: 66px;
+}
+
+/* Use the supplied Darbak artwork rather than the CSS-built wordmark. */
+html body .site-header .site-brand {
+    width: 168px;
+    min-width: 168px;
+    height: 44px;
+    overflow: hidden;
+}
+
+html body .site-header .site-brand-logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.site-footer-brand {
+    width: 150px;
+    min-height: 34px;
+    margin-bottom: .4rem;
+}
+
+.site-footer-logo {
+    display: block;
+    width: 100%;
+    height: 34px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+/* Product-media backgrounds: a restrained automotive technical halo.
+   The DBK fallback is now shown only when an image is actually missing. */
+.home-product-image-link,
+.catalog-product-image-link,
+.home-offer-media {
+    position: relative;
+    isolation: isolate;
+    background: #f2f4f7;
+}
+
+.home-product-image-link::before,
+.catalog-product-image-link::before,
+.home-offer-media::before {
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+    width: 58%;
+    max-width: 240px;
+    aspect-ratio: 1;
+    border: 1px solid rgba(17, 24, 39, .075);
+    border-radius: 50%;
+    content: "";
+    transform: translate(-50%, -50%);
+    box-shadow:
+        inset 0 0 0 14px rgba(17, 24, 39, .012),
+        0 0 0 1px rgba(255,255,255,.55);
+    pointer-events: none;
+}
+
+.home-product-image-link::after,
+.catalog-product-image-link::after {
+    position: absolute;
+    z-index: 0;
+    bottom: 13%;
+    left: 50%;
+    width: 34px;
+    height: 2px;
+    background: rgba(230, 57, 70, .55);
+    content: "";
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.home-product-image,
+.catalog-product-image,
+.home-offer-media img {
+    position: relative;
+    z-index: 2;
+}
+
+.home-product-placeholder.is-hidden,
+.catalog-product-placeholder.is-hidden,
+.home-offer-image-fallback.is-hidden {
+    display: none !important;
+}
+
+.home-product-placeholder,
+.catalog-product-placeholder,
+.home-offer-image-fallback {
+    z-index: 1;
+}
+
+/* The home section is a curated spotlight, not a discount claim. */
+.home-offers-copy {
+    background: #d5323f;
+}
+
+.home-offers-kicker {
+    letter-spacing: .15em;
+}
+
+.home-offers-note {
+    opacity: .82;
+}
+
+.home-offer-topline span:first-child {
+    color: #aeb8c6;
+}
+
+@media (max-width: 1199.98px) {
+    html body .site-header .site-brand {
+        width: 154px;
+        min-width: 154px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .site-shell {
+        padding-top: 64px;
+    }
+
+    html body .site-header {
+        min-height: 64px;
+    }
+
+    html body .site-header-grid {
+        min-height: 62px;
+    }
+
+    html body .site-header .site-brand {
+        width: 142px;
+        min-width: 142px;
+        height: 38px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .site-shell {
+        padding-top: 62px;
+    }
+
+    html body .site-header .site-brand {
+        width: 126px;
+        min-width: 126px;
+    }
+
+    .home-product-image-link::before,
+    .catalog-product-image-link::before,
+    .home-offer-media::before {
+        width: 54%;
+    }
+}
+
+
+/* =========================================================
+   Darbak footer brand visual — approved car artwork
+   Navbar keeps the compact horizontal mark; the footer gets
+   the richer automotive signature without competing with nav.
+   ========================================================= */
+.site-footer-brand-visual {
+    position: relative;
+    display: block;
+    width: min(100%, 282px);
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    text-decoration: none !important;
+}
+
+.site-footer-brand-visual::after {
+    display: none;
+}
+
+.site-footer-car-logo {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: left center;
+    mix-blend-mode: screen;
+    opacity: .94;
+    filter: contrast(1.06) saturate(1.05);
+    transition: transform .22s ease, opacity .22s ease;
+}
+
+.site-footer-brand-visual:hover .site-footer-car-logo,
+.site-footer-brand-visual:focus-visible .site-footer-car-logo {
+    transform: translateY(-1px);
+    opacity: 1;
+}
+
+html body .site-footer .site-footer-code {
+    margin-top: .82rem;
+}
+
+@media (max-width: 575.98px) {
+    .site-footer-brand-visual {
+        width: min(100%, 265px);
     }
 }

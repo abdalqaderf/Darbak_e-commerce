@@ -1,22 +1,27 @@
-﻿# Visual Studio
+# Visual Studio / IDE state
 .vs/
 **/.vs/
+.vscode/
+.idea/
 
 # Build output
 bin/
 obj/
 **/bin/
 **/obj/
+artifacts/
+TestResults/
 
 # User-specific files
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+*.pubxml.user
 
-# Logs
+# Logs / temporary files
 *.log
-
-# VS Code
-.vscode/
-
-# Rider
-.idea/
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db

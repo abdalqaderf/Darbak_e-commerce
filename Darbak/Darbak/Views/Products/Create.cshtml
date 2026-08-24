@@ -1,8 +1,8 @@
-@model Darbak.Models.Product
+﻿@model Darbak.Models.Product
 @{ Layout = "_AdminLayout"; ViewData["Title"] = "Add Product"; }
 <div class="admin-page-heading"><div><span class="admin-page-heading__eyebrow">Catalog</span><h1>Add Product</h1><p>Create a new product and configure its inventory and visibility.</p></div><a asp-action="Index" class="btn btn-outline-secondary">Back to Products</a></div>
 <section class="admin-form-card">
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
 <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 <div class="admin-form-grid">
 <div class="admin-form-field admin-form-field--full"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
@@ -10,6 +10,25 @@
 <div class="admin-form-field"><label asp-for="Price">Price (JD)</label><input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" /><span asp-validation-for="Price" class="text-danger"></span></div>
 <div class="admin-form-field"><label asp-for="StockQuantity">Stock Quantity</label><input asp-for="StockQuantity" class="form-control" type="number" min="0" /><span asp-validation-for="StockQuantity" class="text-danger"></span></div>
 <div class="admin-form-field"><label asp-for="CategoryId">Category</label><select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-select"><option value="0">Select Category</option></select><span asp-validation-for="CategoryId" class="text-danger"></span></div>
+<div class="admin-form-field admin-form-field--full">
+<label for="imageFiles">Product Images</label>
+<input id="imageFiles"
+       name="imageFiles"
+       type="file"
+       class="form-control"
+       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+       multiple />
+<div class="form-text">Upload one or more product images. The first image becomes the main image. Maximum 5 MB per image.</div>
+@if (ViewData.ModelState.TryGetValue("imageFiles", out var imageState) && imageState.Errors.Count > 0)
+{
+    <div class="text-danger mt-1">
+        @foreach (var error in imageState.Errors)
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+</div>
 <div class="admin-form-field admin-form-field--toggle"><div class="form-check form-switch"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Active and visible in the store</label></div></div>
 </div>
 <div class="admin-form-actions"><button type="submit" class="btn btn-primary">Create Product</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></div>

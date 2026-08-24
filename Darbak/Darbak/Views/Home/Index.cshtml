@@ -193,7 +193,7 @@
                            class="home-product-image-link"
                            aria-label="View @product.Name">
 
-                            <span class="home-product-placeholder" aria-hidden="true">
+                            <span class="home-product-placeholder @(!string.IsNullOrWhiteSpace(product.MainImageUrl) ? "is-hidden" : string.Empty)" aria-hidden="true">
                                 <strong>DBK</strong>
                                 <small>No image</small>
                             </span>
@@ -204,7 +204,7 @@
                                      alt="@product.Name"
                                      class="home-product-image"
                                      loading="lazy"
-                                     onerror="this.hidden=true" />
+                                     onerror="this.hidden=true; this.previousElementSibling.classList.remove('is-hidden');" />
                             }
                         </a>
 
@@ -309,23 +309,36 @@
     }
 </section>
 
-<section class="home-section home-offers-section" aria-labelledby="offersTitle">
+<section class="home-section home-offers-section" aria-labelledby="darbakPickTitle">
     <div class="home-offers-frame">
         <div class="home-offers-copy">
-            <span class="home-offers-kicker">Darbak / Offers</span>
-            <h2 id="offersTitle">A current pick, without the noise.</h2>
+            <span class="home-offers-kicker">Darbak / Pick</span>
+            <h2 id="darbakPickTitle">One part worth a closer look.</h2>
             <p>
-                One in-stock product highlighted from the live catalog. Price and stock come directly from the product data.
+                A focused product spotlight selected from the current in-stock catalog.
             </p>
 
-            <a asp-controller="Catalog"
-               asp-action="Index"
-               class="home-offers-button">
-                Browse all products
-                <span aria-hidden="true">→</span>
-            </a>
+            @if (offerProduct is not null)
+            {
+                <a asp-controller="Products"
+                   asp-action="Details"
+                   asp-route-id="@offerProduct.Id"
+                   class="home-offers-button">
+                    View Darbak Pick
+                    <span aria-hidden="true">→</span>
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Catalog"
+                   asp-action="Index"
+                   class="home-offers-button">
+                    Browse products
+                    <span aria-hidden="true">→</span>
+                </a>
+            }
 
-            <span class="home-offers-note">Live catalog selection</span>
+            <span class="home-offers-note">Selected from the live catalog</span>
         </div>
 
         @if (offerProduct is not null)
@@ -336,20 +349,20 @@
                class="home-offer-feature">
 
                 <div class="home-offer-media">
-                    <span class="home-offer-image-fallback" aria-hidden="true">DBK</span>
+                    <span class="home-offer-image-fallback @(!string.IsNullOrWhiteSpace(offerProduct.MainImageUrl) ? "is-hidden" : string.Empty)" aria-hidden="true">DBK</span>
 
                     @if (!string.IsNullOrWhiteSpace(offerProduct.MainImageUrl))
                     {
                         <img src="@offerProduct.MainImageUrl"
                              alt="@offerProduct.Name"
                              loading="lazy"
-                             onerror="this.hidden=true" />
+                             onerror="this.hidden=true; this.previousElementSibling.classList.remove('is-hidden');" />
                     }
                 </div>
 
                 <div class="home-offer-info">
                     <div class="home-offer-topline">
-                        <span>@offerProduct.CategoryName</span>
+                        <span>Darbak Pick / @offerProduct.CategoryName</span>
                         <span>In stock</span>
                     </div>
 

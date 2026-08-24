@@ -41,7 +41,7 @@
 
         <div class="product-details-shell">
             <section class="product-gallery" aria-label="Product images">
-                <div class="product-gallery-frame">
+                <div class="product-gallery-frame @(images.Count > 1 ? "has-thumbnails" : "single-image")">
                     @if (images.Count > 1)
                     {
                         <div class="product-thumbnail-list" aria-label="Choose product image">
@@ -54,7 +54,10 @@
                                         data-image-alt="@Model.Name"
                                         aria-label="View image of @Model.Name"
                                         aria-pressed="@(image.Id == mainImage?.Id ? "true" : "false")">
-                                    <img src="@image.ImageUrl" alt="" loading="lazy" />
+                                    <img src="@image.ImageUrl"
+                                         alt=""
+                                         loading="lazy"
+                                         onerror="this.closest('button').style.display='none';" />
 
                                     @if (image.IsMain)
                                     {
@@ -68,19 +71,23 @@
                     <div class="product-main-media">
                         <span class="product-media-index" aria-hidden="true">DBK / PRODUCT</span>
 
+                        <div id="product-main-fallback"
+                             class="product-image-placeholder"
+                             role="img"
+                             aria-label="No image available for @Model.Name"
+                             style="display: @(mainImage == null ? "flex" : "none");">
+                            <strong>DBK</strong>
+                            <span>No image available</span>
+                        </div>
+
                         @if (mainImage != null)
                         {
                             <img id="product-main-image"
                                  src="@mainImage.ImageUrl"
                                  alt="@Model.Name"
-                                 class="product-main-image" />
-                        }
-                        else
-                        {
-                            <div class="product-image-placeholder" role="img" aria-label="No image available for @Model.Name">
-                                <strong>DBK</strong>
-                                <span>No image available</span>
-                            </div>
+                                 class="product-main-image"
+                                 onload="this.style.display='block'; document.getElementById('product-main-fallback').style.display='none';"
+                                 onerror="this.style.display='none'; document.getElementById('product-main-fallback').style.display='flex';" />
                         }
                     </div>
                 </div>

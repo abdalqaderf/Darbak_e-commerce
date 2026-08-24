@@ -1,4 +1,4 @@
-@{
+﻿@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
@@ -27,6 +27,11 @@
 
     <meta name="theme-color" content="#111827" />
 
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/brand/favicon-32x32.png" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/brand/favicon-16x16.png" asp-append-version="true" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/brand/apple-touch-icon.png" asp-append-version="true" />
+    <link rel="shortcut icon" href="~/favicon.ico" asp-append-version="true" />
+
     <script type="importmap"></script>
 
     <link rel="stylesheet"
@@ -40,7 +45,7 @@
           href="~/Darbak.styles.css"
           asp-append-version="true" />
 </head>
-<body class="d-flex flex-column min-vh-100 @(isIdentityArea ? "identity-context" : string.Empty)">
+<body class="site-shell d-flex flex-column min-vh-100 @(isIdentityArea ? "identity-context" : string.Empty)">
 
     <a class="skip-link" href="#main-content">
         Skip to main content
@@ -56,11 +61,9 @@
                        asp-controller="Home"
                        asp-action="Index"
                        aria-label="Darbak home">
-                        <span class="site-brand-emblem" aria-hidden="true">
-                            <span class="site-brand-emblem-main"></span>
-                            <span class="site-brand-emblem-cut"></span>
-                        </span>
-                        <span class="site-brand-wordmark"><span>D</span>ARBAK</span>
+                        <img src="~/images/brand/darbak-logo-horizontal.png"
+                             alt="Darbak"
+                             class="site-brand-logo" />
                     </a>
 
                     <nav class="site-navigation navbar navbar-expand-lg"
@@ -222,14 +225,16 @@
                 <div class="site-footer-grid">
 
                     <div class="site-footer-intro">
-                        <a class="site-footer-brand"
+                        <a class="site-footer-brand-visual"
                            asp-area=""
                            asp-controller="Home"
                            asp-action="Index"
                            aria-label="Darbak home">
-                            <span>D</span>ARBAK
+                            <img src="~/images/brand/darbak-footer-car.jpeg"
+                                 alt="Darbak automotive brand"
+                                 class="site-footer-car-logo" />
                         </a>
-                        <span class="site-footer-code">DBK / AUTO PARTS</span>
+                        <span class="site-footer-code">AUTO PARTS / ACCESSORIES</span>
                         <p class="site-footer-description">
                             Precision parts and accessories with clear product information,
                             stock visibility, and a direct path from browsing to checkout.
