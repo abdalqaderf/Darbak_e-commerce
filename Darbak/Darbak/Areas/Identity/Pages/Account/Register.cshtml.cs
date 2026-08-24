@@ -44,6 +44,11 @@ public class RegisterModel : PageModel
     public class InputModel
     {
         [Required]
+        [StringLength(100, MinimumLength = 2)]
+        [Display(Name = "Full name")]
+        public string FullName { get; set; } = default!;
+
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; } = default!;
@@ -95,6 +100,7 @@ public class RegisterModel : PageModel
         }
 
         var user = CreateUser();
+        user.FullName = Input.FullName.Trim();
 
         await _userStore.SetUserNameAsync(
             user,

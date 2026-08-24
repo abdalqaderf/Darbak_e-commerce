@@ -3,121 +3,63 @@
 
 @{
     ViewData["Title"] = $"Invoice #{Model.Id}";
-
-    var orderStatusClass = Model.Status switch
-    {
-        OrderStatus.Completed => "order-status-completed",
-        OrderStatus.Cancelled => "order-status-cancelled",
-        _ => "order-status-processing"
-    };
-
-    var paymentStatusClass = Model.PaymentStatus switch
-    {
-        PaymentStatus.Paid => "order-payment-paid",
-        PaymentStatus.Failed => "order-payment-failed",
-        PaymentStatus.Refunded => "order-payment-refunded",
-        _ => "order-payment-pending"
-    };
+    var itemCount = Model.OrderItems.Sum(item => item.Quantity);
 }
 
 <div class="invoice-page">
     <div class="invoice-toolbar no-print">
-        <div>
-            @if (User.IsInRole("Admin"))
-            {
-                <a asp-action="AdminDetails"
-                   asp-route-id="@Model.Id"
-                   class="invoice-back-link">
-                    <span aria-hidden="true">←</span>
-                    Back to Order
-                </a>
-            }
-            else
-            {
-                <a asp-action="Details"
-                   asp-route-id="@Model.Id"
-                   class="invoice-back-link">
-                    <span aria-hidden="true">←</span>
-                    Back to Order
-                </a>
-            }
-            <h1>Invoice #@Model.Id</h1>
-        </div>
-
-        <button type="button"
-                class="btn btn-primary"
-                onclick="window.print();">
-            Print Invoice
-        </button>
+        <a asp-action="@(User.IsInRole("Admin") ? "AdminDetails" : "Details")" asp-route-id="@Model.Id" class="invoice-back-link">← Back to Order</a>
+        <button type="button" class="btn btn-primary" onclick="window.print();">Print Invoice</button>
     </div>
 
     <article class="invoice-sheet" aria-label="Invoice for order @Model.Id">
         <header class="invoice-header">
             <div class="invoice-brand">
-                <div class="invoice-brand-mark" aria-hidden="true">D</div>
-                <div>
-                    <div class="invoice-brand-name">DAR<span>BAK</span></div>
-                    <div class="invoice-brand-tagline">AUTO PARTS &amp; CAR ACCESSORIES</div>
-                </div>
+                <div class="invoice-brand-name">DAR<span>BAK</span></div>
+                <div class="invoice-brand-tagline">AUTO PARTS &amp; CAR ACCESSORIES</div>
             </div>
-
             <div class="invoice-heading-block">
-                <span class="invoice-label">INVOICE</span>
-                <h2>#@Model.Id</h2>
-                <p>Order #@Model.Id</p>
-                <p>@Model.OrderDate.ToLocalTime().ToString("MMMM dd, yyyy")</p>
+                <span class="invoice-label">Invoice</span>
+                <h1>#@Model.Id</h1>
+                <time datetime="@Model.OrderDate.ToString("O")">@Model.OrderDate.ToLocalTime().ToString("MMMM dd, yyyy")</time>
             </div>
         </header>
 
-        <div class="invoice-divider"></div>
+        <div class="invoice-rule"></div>
 
         <div class="invoice-party-grid">
-            <section aria-labelledby="invoice-customer-heading">
-                <span class="invoice-section-label">Billed To</span>
-                <h3 id="invoice-customer-heading">
-                    @(string.IsNullOrWhiteSpace(Model.User?.FullName) ? "Customer" : Model.User.FullName)
-                </h3>
-                <p>@(Model.User?.Email ?? "Email not available")</p>
+            <section>
+                <span class="invoice-section-label">Customer</span>
+                <h2>@(string.IsNullOrWhiteSpace(Model.User?.FullName) ? "Customer" : Model.User.FullName)</h2>
+                @if (!string.IsNullOrWhiteSpace(Model.User?.Email)) { <p>@Model.User.Email</p> }
                 <p>@Model.PhoneNumber</p>
             </section>
-
-            <section aria-labelledby="invoice-shipping-heading">
-                <span class="invoice-section-label">Shipping To</span>
-                <h3 id="invoice-shipping-heading">@Model.City</h3>
+            <section>
+                <span class="invoice-section-label">Ship To</span>
+                <h2>@Model.City</h2>
                 <p>@Model.ShippingAddress</p>
                 <p>@Model.PhoneNumber</p>
             </section>
-        </div>
-
-        <div class="invoice-status-strip">
-            <div>
-                <span>Order Status</span>
-                <strong class="order-status-badge @orderStatusClass">
-                    <span class="order-status-dot" aria-hidden="true"></span>
-                    @Model.Status
-                </strong>
-            </div>
-            <div>
-                <span>Payment Status</span>
-                <strong class="order-status-badge @paymentStatusClass">
-                    <span class="order-status-dot" aria-hidden="true"></span>
-                    @Model.PaymentStatus
-                </strong>
-            </div>
+            <section class="invoice-order-meta">
+                <span class="invoice-section-label">Order</span>
+                <dl>
+                    <div><dt>Status</dt><dd>@Model.Status</dd></div>
+                    <div><dt>Payment</dt><dd>@Model.PaymentStatus</dd></div>
+                    <div><dt>Items</dt><dd>@itemCount</dd></div>
+                </dl>
+            </section>
         </div>
 
         <section class="invoice-items" aria-labelledby="invoice-items-heading">
-            <h3 id="invoice-items-heading" class="visually-hidden">Invoice items</h3>
-
+            <h2 id="invoice-items-heading" class="visually-hidden">Invoice items</h2>
             <div class="table-responsive" tabindex="0">
                 <table class="table invoice-table align-middle mb-0">
-                    <caption class="visually-hidden">Invoice items for order @Model.Id</caption>
                     <thead>
                         <tr>
-                            <th scope="col">Product</th>
-                            <th scope="col" class="text-end">Unit Price</th>
-                            <th scope="col" class="text-center">Quantity</th>
-                            <th scope="col" class="text-end">Line Total</th>
+                            <th>Product</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Line Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,9 +69,7 @@
                                 <td><strong>@item.ProductName</strong></td>
                                 <td class="text-end text-nowrap">@item.UnitPrice.ToString("0.00") JD</td>
                                 <td class="text-center">@item.Quantity</td>
-                                <td class="text-end text-nowrap fw-bold">
-                                    @((item.UnitPrice * item.Quantity).ToString("0.00")) JD
-                                </td>
+                                <td class="text-end text-nowrap fw-bold">@((item.UnitPrice * item.Quantity).ToString("0.00")) JD</td>
                             </tr>
                         }
                     </tbody>
@@ -138,15 +78,13 @@
         </section>
 
         <div class="invoice-total-area">
-            <div class="invoice-total-box">
-                <span>Grand Total</span>
-                <strong>@Model.TotalAmount.ToString("0.00") JD</strong>
-            </div>
+            <span>Grand Total</span>
+            <strong>@Model.TotalAmount.ToString("0.00") JD</strong>
         </div>
 
         <footer class="invoice-footer-note">
-            <strong>Darbak</strong>
-            <span>Auto Parts &amp; Car Accessories</span>
+            <span>Darbak</span>
+            <span>Invoice #@Model.Id</span>
         </footer>
     </article>
 </div>

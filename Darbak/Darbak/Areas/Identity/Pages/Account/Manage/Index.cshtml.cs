@@ -47,6 +47,11 @@ public class IndexModel : PageModel
     /// </summary>
     public class InputModel
     {
+        [Required]
+        [StringLength(100, MinimumLength = 2)]
+        [Display(Name = "Full name")]
+        public string FullName { get; set; } = default!;
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -65,6 +70,7 @@ public class IndexModel : PageModel
 
         Input = new InputModel
         {
+            FullName = user.FullName ?? string.Empty,
             PhoneNumber = phoneNumber
         };
     }
@@ -93,6 +99,24 @@ public class IndexModel : PageModel
         {
             await LoadAsync(user);
             return Page();
+        }
+
+        var fullName = Input.FullName.Trim();
+        if (!string.Equals(user.FullName, fullName, StringComparison.Ordinal))
+        {
+            user.FullName = fullName;
+
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if (!updateUserResult.Succeeded)
+            {
+                foreach (var error in updateUserResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                await LoadAsync(user);
+                return Page();
+            }
         }
 
         var phoneNumber = await _userManager.GetPhoneNumberAsync(user);

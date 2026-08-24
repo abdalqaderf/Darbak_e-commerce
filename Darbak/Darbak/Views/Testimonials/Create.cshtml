@@ -12,37 +12,35 @@
     <span aria-current="page">Share Your Experience</span>
 </nav>
 
-<section class="feedback-form-page" aria-labelledby="testimonial-title">
-    <div class="feedback-form-card">
-        <div class="feedback-form-heading">
-            <span class="section-eyebrow">Customer Story</span>
-            <h1 id="testimonial-title">Share Your Experience</h1>
-            <p>Tell other customers about your experience with Darbak. Submitted testimonials require admin approval before they appear publicly.</p>
+<section class="testimonial-submit-page" aria-labelledby="testimonial-title">
+    <header class="testimonial-submit-intro">
+        <span class="section-eyebrow">Customer Feedback</span>
+        <h1 id="testimonial-title">Share your experience.</h1>
+        <p>Your testimonial is reviewed before it appears publicly.</p>
+    </header>
+
+    <form asp-action="Create" method="post" class="testimonial-submit-form">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
+
+        <div class="testimonial-submit-field">
+            <label asp-for="Content" class="form-label">Your testimonial</label>
+            <textarea asp-for="Content"
+                      class="form-control"
+                      rows="7"
+                      maxlength="1000"
+                      placeholder="Tell us about your Darbak experience."></textarea>
+            <div class="testimonial-submit-meta">
+                <small>Shopping, product, or order experience</small>
+                <small>Maximum 1000 characters</small>
+            </div>
+            <span asp-validation-for="Content" class="field-validation-error"></span>
         </div>
 
-        <form asp-action="Create" method="post" class="feedback-form">
-            <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
-
-            <div class="feedback-form-field">
-                <label asp-for="Content" class="form-label">Your Testimonial</label>
-                <textarea asp-for="Content"
-                          class="form-control"
-                          rows="7"
-                          maxlength="1000"
-                          placeholder="Write your testimonial..."></textarea>
-                <div class="feedback-form-hint-row">
-                    <small class="form-text">Focus on your shopping or product experience.</small>
-                    <small class="form-text">Max 1000 characters</small>
-                </div>
-                <span asp-validation-for="Content" class="field-validation-error"></span>
-            </div>
-
-            <div class="feedback-form-actions">
-                <button type="submit" class="btn btn-primary">Submit Testimonial</button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
-    </div>
+        <div class="testimonial-submit-actions">
+            <button type="submit" class="btn btn-primary">Submit Testimonial</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </section>
 
 @section Scripts {

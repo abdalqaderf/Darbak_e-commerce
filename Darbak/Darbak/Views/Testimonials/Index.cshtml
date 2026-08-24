@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Testimonials";
+    var testimonials = Model.ToList();
 }
 
 <nav class="darbak-breadcrumb" aria-label="Breadcrumb">
@@ -10,55 +11,53 @@
     <span aria-current="page">Testimonials</span>
 </nav>
 
-<section class="testimonials-page" aria-labelledby="testimonials-title">
-    <header class="page-heading-row">
+<section class="testimonials-page testimonials-page--editorial" aria-labelledby="testimonials-title">
+    <div class="testimonials-intro">
         <div>
             <span class="section-eyebrow">Customer Feedback</span>
-            <h1 id="testimonials-title">What Our Customers Say</h1>
-            <p>Approved experiences shared by Darbak customers.</p>
+            <h1 id="testimonials-title">What customers share about Darbak.</h1>
+            <p>Testimonials shown on this page have been approved for public display.</p>
         </div>
 
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a asp-action="Create" class="btn btn-primary">Share Your Experience</a>
         }
-    </header>
+        else
+        {
+            <a asp-area="Identity" asp-page="/Account/Login" class="testimonials-signin-link">
+                Sign in to share <span aria-hidden="true">→</span>
+            </a>
+        }
+    </div>
 
-    @if (!Model.Any())
+    @if (!testimonials.Any())
     {
-        <div class="empty-state" role="status">
-            <div class="empty-state__mark" aria-hidden="true">“</div>
-            <h2>No testimonials yet</h2>
-            <p>Approved customer testimonials will appear here.</p>
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a asp-action="Create" class="btn btn-primary">Be the First to Share</a>
-            }
-            else
-            {
-                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-secondary">Sign In</a>
-            }
+        <div class="testimonials-empty" role="status">
+            <span class="testimonials-empty-mark" aria-hidden="true">“</span>
+            <div>
+                <strong>No approved testimonials yet.</strong>
+                <p>Customer feedback will appear here after moderation.</p>
+            </div>
         </div>
     }
     else
     {
-        <div class="testimonials-page-grid">
-            @foreach (var testimonial in Model)
+        <div class="testimonial-ledger">
+            @for (var i = 0; i < testimonials.Count; i++)
             {
-                <article class="testimonial-page-card">
-                    <span class="testimonial-page-card__quote" aria-hidden="true">“</span>
+                var testimonial = testimonials[i];
+                var displayName = string.IsNullOrWhiteSpace(testimonial.User?.FullName)
+                    ? testimonial.User?.UserName
+                    : testimonial.User.FullName;
+
+                <article class="testimonial-ledger-row">
+                    <div class="testimonial-ledger-index">@((i + 1).ToString("00"))</div>
                     <blockquote>
-                        <p>@testimonial.Content</p>
+                        <p>“@testimonial.Content”</p>
                     </blockquote>
                     <footer>
-                        <div>
-                            <strong>
-                                @(string.IsNullOrWhiteSpace(testimonial.User.FullName)
-                                    ? testimonial.User.UserName
-                                    : testimonial.User.FullName)
-                            </strong>
-                            <span>Verified account</span>
-                        </div>
+                        <strong>@(displayName ?? "Customer")</strong>
                         <time datetime="@testimonial.CreatedAt.ToString("yyyy-MM-dd")">
                             @testimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
                         </time>

@@ -1,188 +1,206 @@
-﻿@model Darbak.ViewModels.HomeViewModel
+@model Darbak.ViewModels.HomeViewModel
 
 @{
     ViewData["Title"] = "About Us";
+    var featuredTestimonial = Model.Testimonials.FirstOrDefault();
+    var supportingTestimonials = Model.Testimonials.Skip(1).Take(2).ToList();
 }
 
-<div class="about-page">
-    <section class="about-hero" aria-labelledby="about-title">
+<nav class="darbak-breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Home</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">About Us</span>
+</nav>
+
+<div class="about-page about-page--refined">
+    <section class="about-hero about-hero--photo" aria-labelledby="about-title">
         <div class="about-hero-content">
-            <span class="about-eyebrow">ABOUT DARBAK</span>
-            <h1 id="about-title">Driven by Quality. Built for Every Road.</h1>
+            <span class="about-eyebrow">Darbak / Auto Parts &amp; Accessories</span>
+            <h1 id="about-title">A clearer way to shop for your car.</h1>
             <p>
-                Darbak brings auto parts and car accessories into one focused shopping experience,
-                making it easier to browse, compare, save, and order the products you need.
+                Browse parts and accessories, compare product information, save favorites,
+                manage your cart, and follow your orders from one focused storefront.
             </p>
             <div class="about-hero-actions">
-                <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary btn-lg">
-                    Shop Now
+                <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary">
+                    Shop Parts
                 </a>
-                <a href="#who-we-are" class="btn btn-outline-light btn-lg">
-                    Learn More
+                <a asp-controller="Testimonials" asp-action="Index" class="about-text-link">
+                    Customer feedback <span aria-hidden="true">→</span>
                 </a>
             </div>
         </div>
 
-        <div class="about-hero-visual" aria-hidden="true">
-            <svg viewBox="0 0 620 340" role="img" focusable="false">
-                <path class="about-road-line" d="M-10 290 C120 220 230 230 340 170 C430 120 515 105 635 65" />
-                <path class="about-car-body" d="M115 212 160 155c13-16 31-25 52-25h120c19 0 38 7 52 20l47 42 64 13c20 4 34 22 34 42v14H90v-18c0-16 10-29 25-31Z" />
-                <path class="about-car-window" d="m185 158-31 48h102v-51h-43c-11 0-21 1-28 3Zm92-3v51h118l-35-32c-13-12-28-19-46-19h-37Z" />
-                <circle class="about-wheel" cx="176" cy="261" r="36" />
-                <circle class="about-wheel-core" cx="176" cy="261" r="15" />
-                <circle class="about-wheel" cx="430" cy="261" r="36" />
-                <circle class="about-wheel-core" cx="430" cy="261" r="15" />
-            </svg>
-        </div>
-    </section>
-
-    <section id="who-we-are" class="about-story-section" aria-labelledby="who-we-are-title">
-        <div class="about-section-heading">
-            <span class="section-kicker">Who We Are</span>
-            <h2 id="who-we-are-title">A simpler way to shop for your car</h2>
-        </div>
-
-        <div class="about-story-grid">
-            <div class="about-story-copy">
-                <p class="about-lead">
-                    Darbak is an online store focused on auto parts and car accessories.
-                </p>
-                <p>
-                    The store is designed to make product discovery straightforward. You can search
-                    by product or category, browse available items, review product information and
-                    ratings, save favorites to a wishlist, and manage your shopping cart before checkout.
-                </p>
-                <p>
-                    Registered customers can also follow their orders, view detailed order information,
-                    access invoices, submit product reviews, and share testimonials that are published
-                    after approval.
-                </p>
+        <div class="about-hero-media">
+            <div class="about-hero-media-fallback" aria-hidden="true">
+                <span>DBK</span>
+                <small>Automotive / Precision</small>
             </div>
-
-            <div class="about-stat-panel" aria-label="Darbak shopping experience">
-                <div class="about-stat-item">
-                    <strong>Search</strong>
-                    <span>Products and categories</span>
-                </div>
-                <div class="about-stat-item">
-                    <strong>Save</strong>
-                    <span>Products to your wishlist</span>
-                </div>
-                <div class="about-stat-item">
-                    <strong>Order</strong>
-                    <span>From cart to checkout</span>
-                </div>
-                <div class="about-stat-item">
-                    <strong>Track</strong>
-                    <span>Current and previous orders</span>
-                </div>
-            </div>
+            <img src="~/images/about/darbak-about-hero.png"
+                 alt="Dark performance car in a professional automotive workshop"
+                 loading="eager"
+                 onerror="this.hidden=true" />
         </div>
     </section>
 
-    <section class="about-features-section" aria-labelledby="what-we-offer-title">
-        <div class="about-section-heading centered">
-            <span class="section-kicker">What We Offer</span>
-            <h2 id="what-we-offer-title">Everything around the products that matter</h2>
-            <p>Core shopping tools already built into Darbak.</p>
+    <section class="about-editorial" aria-labelledby="about-story-title">
+        <div class="about-editorial-heading">
+            <span class="section-kicker">What Darbak Is</span>
+            <h2 id="about-story-title">Automotive shopping without unnecessary friction.</h2>
         </div>
 
-        <div class="about-feature-grid">
-            <article class="about-feature-card">
-                <div class="about-feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="26" height="26"><path d="M11 4a7 7 0 1 0 4.9 12l4.55 4.55 1.4-1.4L17.3 14.6A7 7 0 0 0 11 4Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" fill="currentColor" /></svg>
-                </div>
-                <h3>Smart Product Search</h3>
-                <p>Search by product name or category and narrow the catalog using available filters and sorting.</p>
-            </article>
-
-            <article class="about-feature-card">
-                <div class="about-feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 21s-7.5-4.35-9.6-8.7C.8 8.95 2.55 5 6.45 5c2.05 0 3.35 1.15 4.05 2.2C11.2 6.15 12.5 5 14.55 5c3.9 0 5.65 3.95 4.05 7.3C16.5 16.65 12 21 12 21Z" fill="currentColor" /></svg>
-                </div>
-                <h3>Wishlist &amp; Cart</h3>
-                <p>Save products for later and manage quantities in a persistent shopping cart before checkout.</p>
-            </article>
-
-            <article class="about-feature-card">
-                <div class="about-feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="26" height="26"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2L5.8 21 7 14.2 2 9.3l6.9-1L12 2Z" fill="currentColor" /></svg>
-                </div>
-                <h3>Ratings &amp; Reviews</h3>
-                <p>Read approved customer reviews and ratings, then submit your own review when signed in.</p>
-            </article>
-
-            <article class="about-feature-card">
-                <div class="about-feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 3h14v18H5V3Zm2 2v14h10V5H7Zm2 3h6v2H9V8Zm0 4h6v2H9v-2Z" fill="currentColor" /></svg>
-                </div>
-                <h3>Order History &amp; Invoices</h3>
-                <p>Review current and previous orders, open full details, and print an invoice for each order.</p>
-            </article>
+        <div class="about-editorial-copy">
+            <p class="about-lead">
+                Darbak is an online store for auto parts and car accessories, built around clear
+                product discovery and a straightforward path from browsing to checkout.
+            </p>
+            <p>
+                Search by product or category, use catalog filters, review stock and product details,
+                save items to a wishlist, and keep a cart while you continue shopping.
+            </p>
+            <p>
+                Signed-in customers can complete checkout, review current and previous orders,
+                open order details and invoices, submit product reviews, and share testimonials.
+            </p>
         </div>
     </section>
 
-    <section class="about-why-section" aria-labelledby="why-darbak-title">
-        <div class="about-why-panel">
+    <section class="about-flow" aria-labelledby="about-flow-title">
+        <header class="about-section-line">
             <div>
-                <span class="section-kicker">Why Choose Darbak</span>
-                <h2 id="why-darbak-title">Focused on a clear automotive shopping experience</h2>
+                <span class="section-kicker">Shopping Flow</span>
+                <h2 id="about-flow-title">From search to order.</h2>
             </div>
+        </header>
 
-            <div class="about-check-list">
-                <div><span aria-hidden="true">✓</span><p>Clear product information with stock visibility.</p></div>
-                <div><span aria-hidden="true">✓</span><p>Approved reviews and testimonials before public display.</p></div>
-                <div><span aria-hidden="true">✓</span><p>Guest cart support before login is required for checkout.</p></div>
-                <div><span aria-hidden="true">✓</span><p>Order details, statuses, and invoices in one account area.</p></div>
+        <div class="about-flow-grid">
+            <article class="about-flow-item">
+                <span class="about-flow-index">01</span>
+                <div>
+                    <h3>Find</h3>
+                    <p>Search products and categories, then narrow the catalog with filters and sorting.</p>
+                </div>
+            </article>
+            <article class="about-flow-item">
+                <span class="about-flow-index">02</span>
+                <div>
+                    <h3>Compare</h3>
+                    <p>Review product details, availability, images, ratings, and approved customer reviews.</p>
+                </div>
+            </article>
+            <article class="about-flow-item">
+                <span class="about-flow-index">03</span>
+                <div>
+                    <h3>Save &amp; Shop</h3>
+                    <p>Keep favorites in your wishlist and continue shopping while your cart is preserved.</p>
+                </div>
+            </article>
+            <article class="about-flow-item">
+                <span class="about-flow-index">04</span>
+                <div>
+                    <h3>Order</h3>
+                    <p>Complete checkout, then return to your account for order details, status, and invoice.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="about-principles" aria-labelledby="about-principles-title">
+        <div class="about-principles-title">
+            <span class="section-kicker">Darbak Experience</span>
+            <h2 id="about-principles-title">Useful information stays visible where it matters.</h2>
+        </div>
+
+        <div class="about-principles-list">
+            <div class="about-principle-row">
+                <span>01</span>
+                <strong>Product clarity</strong>
+                <p>Product details, price, category, stock, and customer feedback remain easy to scan.</p>
+            </div>
+            <div class="about-principle-row">
+                <span>02</span>
+                <strong>Shopping continuity</strong>
+                <p>Adding an item keeps you in the shopping flow instead of forcing you into the cart.</p>
+            </div>
+            <div class="about-principle-row">
+                <span>03</span>
+                <strong>Moderated feedback</strong>
+                <p>Reviews and testimonials appear publicly after approval.</p>
+            </div>
+            <div class="about-principle-row">
+                <span>04</span>
+                <strong>Order visibility</strong>
+                <p>Current and previous orders, details, statuses, and invoices remain accessible from the account.</p>
             </div>
         </div>
     </section>
 
-    <section class="about-testimonials-section" aria-labelledby="about-testimonials-title">
-        <div class="about-section-heading centered">
-            <span class="section-kicker">Customer Feedback</span>
-            <h2 id="about-testimonials-title">What Our Customers Say</h2>
-            <p>Only testimonials approved for public display are shown here.</p>
-        </div>
+    <section class="about-testimonials-section about-testimonials--editorial" aria-labelledby="about-testimonials-title">
+        <header class="about-section-line">
+            <div>
+                <span class="section-kicker">Customer Feedback</span>
+                <h2 id="about-testimonials-title">Shared by Darbak customers.</h2>
+            </div>
+            <a asp-controller="Testimonials" asp-action="Index" class="about-text-link">
+                View testimonials <span aria-hidden="true">→</span>
+            </a>
+        </header>
 
-        @if (!Model.Testimonials.Any())
+        @if (featuredTestimonial == null)
         {
-            <div class="empty-state about-empty-state">
-                <div class="empty-state-icon" aria-hidden="true">“</div>
-                <h3>No testimonials yet</h3>
-                <p>Approved customer testimonials will appear here when available.</p>
+            <div class="about-testimonial-empty" role="status">
+                <strong>No approved testimonials yet.</strong>
+                <span>Customer feedback will appear here after moderation.</span>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Testimonials" asp-action="Create">Share your experience →</a>
+                }
             </div>
         }
         else
         {
-            <div class="about-testimonial-grid">
-                @foreach (var testimonial in Model.Testimonials)
+            <div class="about-testimonial-composition @(supportingTestimonials.Any() ? string.Empty : "about-testimonial-composition--single")">
+                <article class="about-testimonial-feature">
+                    <span class="about-testimonial-quote" aria-hidden="true">“</span>
+                    <blockquote>
+                        <p>@featuredTestimonial.Content</p>
+                    </blockquote>
+                    <footer>
+                        <strong>@featuredTestimonial.UserName</strong>
+                        <time datetime="@featuredTestimonial.CreatedAt.ToString("O")">
+                            @featuredTestimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                        </time>
+                    </footer>
+                </article>
+
+                @if (supportingTestimonials.Any())
                 {
-                    <article class="about-testimonial-card">
-                        <div class="about-quote-mark" aria-hidden="true">“</div>
-                        <blockquote>
-                            <p>@testimonial.Content</p>
-                        </blockquote>
-                        <footer>
-                            <strong>@testimonial.UserName</strong>
-                            <time datetime="@testimonial.CreatedAt.ToString("O")">
-                                @testimonial.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")
-                            </time>
-                        </footer>
-                    </article>
+                    <div class="about-testimonial-supporting">
+                        @foreach (var testimonial in supportingTestimonials)
+                        {
+                            <article>
+                                <blockquote><p>“@testimonial.Content”</p></blockquote>
+                                <footer>
+                                    <strong>@testimonial.UserName</strong>
+                                    <time datetime="@testimonial.CreatedAt.ToString("O")">
+                                        @testimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                    </time>
+                                </footer>
+                            </article>
+                        }
+                    </div>
                 }
             </div>
         }
     </section>
 
-    <section class="about-bottom-cta" aria-labelledby="about-cta-title">
+    <section class="about-bottom-cta about-bottom-cta--refined" aria-labelledby="about-cta-title">
         <div>
-            <span class="section-kicker">Explore Darbak</span>
-            <h2 id="about-cta-title">Ready to find what your car needs?</h2>
-            <p>Browse the current catalog of auto parts and car accessories.</p>
+            <span class="section-kicker">Darbak / Catalog</span>
+            <h2 id="about-cta-title">Find the part or accessory you need.</h2>
         </div>
-        <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary btn-lg">
-            Shop Now
+        <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary">
+            Browse Catalog
         </a>
     </section>
 </div>

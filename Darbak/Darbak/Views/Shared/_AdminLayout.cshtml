@@ -33,10 +33,10 @@
                    asp-action="Index"
                    class="admin-brand"
                    id="adminSidebarLabel">
-                    <span class="admin-brand__mark" aria-hidden="true">D</span>
-                    <span>
-                        <strong>Darbak</strong>
-                        <small>Administration</small>
+                    <span class="admin-brand__signal" aria-hidden="true"></span>
+                    <span class="admin-brand__copy">
+                        <strong>DARBAK</strong>
+                        <small>ADMIN</small>
                     </span>
                 </a>
 
@@ -50,80 +50,82 @@
             <nav class="admin-nav" aria-label="Administration">
                 <p class="admin-nav__label">Overview</p>
                 <a asp-controller="AdminDashboard" asp-action="Index" class="admin-nav__link @Active("AdminDashboard")" aria-current="@(controller == "AdminDashboard" ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">01</span>
                     <span>Dashboard</span>
                 </a>
 
                 <p class="admin-nav__label">Catalog</p>
                 <a asp-controller="Products" asp-action="Index" class="admin-nav__link @(controller == "Products" || controller == "ProductImages" ? "is-active" : string.Empty)" aria-current="@(controller == "Products" || controller == "ProductImages" ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">02</span>
                     <span>Products</span>
                 </a>
                 <a asp-controller="Categories" asp-action="Index" class="admin-nav__link @Active("Categories")" aria-current="@(controller == "Categories" ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">03</span>
                     <span>Categories</span>
                 </a>
 
                 <p class="admin-nav__label">Sales</p>
                 <a asp-controller="Orders" asp-action="AdminIndex" class="admin-nav__link @(controller == "Orders" && (action == "AdminIndex" || action == "AdminDetails") ? "is-active" : string.Empty)" aria-current="@(controller == "Orders" && (action == "AdminIndex" || action == "AdminDetails") ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">04</span>
                     <span>Orders</span>
                 </a>
 
                 <p class="admin-nav__label">Moderation</p>
                 <a asp-controller="Reviews" asp-action="Index" class="admin-nav__link @Active("Reviews", "Index")" aria-current="@(controller == "Reviews" && action == "Index" ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">05</span>
                     <span>Reviews</span>
                 </a>
                 <a asp-controller="Testimonials" asp-action="AdminIndex" class="admin-nav__link @Active("Testimonials", "AdminIndex")" aria-current="@(controller == "Testimonials" && action == "AdminIndex" ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">06</span>
                     <span>Testimonials</span>
                 </a>
 
                 <p class="admin-nav__label">Access</p>
                 <a asp-controller="AdminUsers" asp-action="Index" class="admin-nav__link @Active("AdminUsers")" aria-current="@(controller == "AdminUsers" ? "page" : null)">
-                    <span class="admin-nav__icon" aria-hidden="true">07</span>
                     <span>Users</span>
                 </a>
             </nav>
 
             <div class="admin-sidebar__footer">
-                <a asp-controller="Home" asp-action="Index" class="admin-sidebar__store-link">
-                    <span aria-hidden="true">←</span>
-                    Back to Store
-                </a>
 
                 <form asp-area="Identity"
                       asp-page="/Account/Logout"
                       asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
                       method="post">
-                    <button type="submit" class="admin-sidebar__logout">Logout</button>
+                    <button type="submit" class="admin-sidebar__logout">Sign out</button>
                 </form>
             </div>
         </aside>
 
         <div class="admin-workspace">
             <header class="admin-topbar">
-                <button type="button"
-                        class="admin-menu-toggle d-lg-none"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#adminSidebar"
-                        aria-controls="adminSidebar"
-                        aria-label="Open administration navigation">
-                    <span></span><span></span><span></span>
-                </button>
+                <div class="admin-topbar__left">
+                    <button type="button"
+                            class="admin-menu-toggle d-lg-none"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#adminSidebar"
+                            aria-controls="adminSidebar"
+                            aria-label="Open administration navigation">
+                        <span></span><span></span><span></span>
+                    </button>
 
-                <div class="admin-topbar__context">
-                    <span class="admin-topbar__eyebrow">Darbak Administration</span>
-                    <strong>@(ViewData["Title"] ?? "Dashboard")</strong>
+                    <div class="admin-topbar__context">
+                        <span class="admin-topbar__eyebrow">Operations</span>
+                        <strong>@(ViewData["Title"] ?? "Dashboard")</strong>
+                    </div>
                 </div>
 
-                <div class="admin-topbar__account">
-                    <span class="admin-topbar__avatar" aria-hidden="true">A</span>
-                    <span class="d-none d-sm-block">
-                        <small>Signed in as</small>
-                        <strong>@(User.Identity?.Name ?? "Admin")</strong>
-                    </span>
+                <div class="admin-topbar__actions">
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="admin-topbar__store-link"
+                       target="_blank"
+                       rel="noopener">
+                        <span>Open Store</span>
+                        <span aria-hidden="true">↗</span>
+                    </a>
+
+                    <div class="admin-topbar__account">
+                        <span class="admin-topbar__avatar" aria-hidden="true">A</span>
+                        <span class="d-none d-sm-block">
+                            <small>Administrator</small>
+                            <strong>@(User.Identity?.Name ?? "Admin")</strong>
+                        </span>
+                    </div>
                 </div>
             </header>
 

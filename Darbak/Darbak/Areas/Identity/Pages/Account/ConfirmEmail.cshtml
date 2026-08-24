@@ -1,8 +1,15 @@
 @page
 @model ConfirmEmailModel
 @{
-    ViewData["Title"] = "Confirm email";
+    ViewData["Title"] = "Email confirmation";
 }
 
-<h1>@ViewData["Title"]</h1>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
+<section class="identity-card-page" aria-labelledby="confirm-email-title">
+    <div class="identity-card identity-state-card">
+        <div class="identity-state-mark" aria-hidden="true">✓</div>
+        <span class="section-eyebrow">Account email</span>
+        <h1 id="confirm-email-title">Email confirmation</h1>
+        <partial name="_StatusMessage" model="Model.StatusMessage" />
+        <a asp-page="./Login" class="identity-back-link">Continue to log in</a>
+    </div>
+</section>

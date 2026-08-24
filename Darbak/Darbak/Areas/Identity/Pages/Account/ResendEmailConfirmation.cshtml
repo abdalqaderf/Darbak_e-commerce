@@ -1,25 +1,26 @@
 @page
 @model ResendEmailConfirmationModel
 @{
-    ViewData["Title"] = "Resend email confirmation";
+    ViewData["Title"] = "Resend confirmation";
 }
 
-<h1>@ViewData["Title"]</h1>
-<h2>Enter your email.</h2>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email" class="form-label"></label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+<section class="identity-card-page" aria-labelledby="resend-confirmation-title">
+    <div class="identity-card">
+        <span class="section-eyebrow">Email confirmation</span>
+        <h1 id="resend-confirmation-title">Resend confirmation email</h1>
+        <p class="identity-card-intro">Enter the email address used for your account.</p>
+
+        <form method="post" class="identity-form">
+            <div asp-validation-summary="All" class="text-danger identity-validation" role="alert"></div>
+            <div class="auth-field">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control auth-input" aria-required="true" placeholder="name@example.com" />
+                <span asp-validation-for="Input.Email" class="text-danger auth-field-error"></span>
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Resend</button>
+            <button type="submit" class="btn btn-accent identity-submit">Resend email</button>
         </form>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

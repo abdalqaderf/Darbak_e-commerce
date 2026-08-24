@@ -6,55 +6,59 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="admin-page-heading">
+<div class="admin-page-heading admin-page-heading--dashboard">
     <div>
-        <span class="admin-page-heading__eyebrow">Overview</span>
-        <h1>Dashboard Overview</h1>
-        <p>Monitor the store, recent orders, moderation queues, and stock levels.</p>
+        <span class="admin-page-heading__eyebrow">Store Operations</span>
+        <h1>Dashboard</h1>
+        <p>Orders, inventory, moderation, and account activity in one view.</p>
     </div>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">View Store</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Open Store</a>
 </div>
 
-<section class="admin-stat-grid" aria-label="Store statistics">
-    <article class="admin-stat-card">
-        <div class="admin-stat-card__top"><span>Products</span><span class="admin-stat-card__index">01</span></div>
+<section class="admin-command-strip" aria-label="Store overview">
+    <div class="admin-command-metric">
+        <span>Products</span>
         <strong>@Model.TotalProducts</strong>
-        <small>@Model.ActiveProducts active products</small>
-    </article>
-    <article class="admin-stat-card">
-        <div class="admin-stat-card__top"><span>Categories</span><span class="admin-stat-card__index">02</span></div>
+        <small>@Model.ActiveProducts active</small>
+    </div>
+    <div class="admin-command-metric">
+        <span>Categories</span>
         <strong>@Model.TotalCategories</strong>
-        <small>Catalog categories</small>
-    </article>
-    <article class="admin-stat-card">
-        <div class="admin-stat-card__top"><span>Users</span><span class="admin-stat-card__index">03</span></div>
+        <small>Catalog groups</small>
+    </div>
+    <div class="admin-command-metric">
+        <span>Users</span>
         <strong>@Model.TotalUsers</strong>
         <small>Registered accounts</small>
-    </article>
-    <article class="admin-stat-card">
-        <div class="admin-stat-card__top"><span>Orders</span><span class="admin-stat-card__index">04</span></div>
+    </div>
+    <div class="admin-command-metric">
+        <span>Orders</span>
         <strong>@Model.TotalOrders</strong>
-        <small>Total orders</small>
-    </article>
+        <small>All orders</small>
+    </div>
+    <div class="admin-command-metric admin-command-metric--value">
+        <span>Order Value</span>
+        <strong>@Model.TotalOrderValue.ToString("0.00") <em>JD</em></strong>
+        <small>Recorded total</small>
+    </div>
 </section>
 
-<div class="admin-secondary-stats">
-    <article class="admin-metric-card">
-        <span>Total Order Value</span>
-        <strong>@Model.TotalOrderValue.ToString("0.00") JD</strong>
-        <small>Across all orders</small>
-    </article>
-    <article class="admin-metric-card">
-        <span>Pending Reviews</span>
+<section class="admin-priority-strip" aria-label="Moderation queues">
+    <div class="admin-priority-strip__label">
+        <span class="admin-panel__eyebrow">Attention</span>
+        <strong>Moderation queue</strong>
+    </div>
+    <a asp-controller="Reviews" asp-action="Index" class="admin-priority-item">
+        <span>Pending reviews</span>
         <strong>@Model.PendingReviews</strong>
-        <a asp-controller="Reviews" asp-action="Index">Manage reviews →</a>
-    </article>
-    <article class="admin-metric-card">
-        <span>Pending Testimonials</span>
+        <small>Review queue →</small>
+    </a>
+    <a asp-controller="Testimonials" asp-action="AdminIndex" class="admin-priority-item">
+        <span>Pending testimonials</span>
         <strong>@Model.PendingTestimonials</strong>
-        <a asp-controller="Testimonials" asp-action="AdminIndex">Manage testimonials →</a>
-    </article>
-</div>
+        <small>Testimonial queue →</small>
+    </a>
+</section>
 
 <div class="admin-dashboard-grid">
     <section class="admin-panel" aria-labelledby="recent-orders-title">
@@ -63,7 +67,7 @@
                 <span class="admin-panel__eyebrow">Sales</span>
                 <h2 id="recent-orders-title">Recent Orders</h2>
             </div>
-            <a asp-controller="Orders" asp-action="AdminIndex" class="admin-panel__link">View all</a>
+            <a asp-controller="Orders" asp-action="AdminIndex" class="admin-panel__link">All orders →</a>
         </div>
 
         @if (!Model.RecentOrders.Any())
@@ -76,8 +80,11 @@
         else
         {
             <div class="table-responsive" tabindex="0">
-                <table class="table admin-table align-middle mb-0"><caption class="visually-hidden">Recent orders</caption>
-                    <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                <table class="table admin-table align-middle mb-0">
+                    <caption class="visually-hidden">Recent orders</caption>
+                    <thead>
+                        <tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th></th></tr>
+                    </thead>
                     <tbody>
                     @foreach (var order in Model.RecentOrders)
                     {
@@ -90,9 +97,9 @@
                         <tr>
                             <td><strong>#@order.Id</strong><small>@order.OrderDate.ToLocalTime().ToString("dd MMM yyyy")</small></td>
                             <td>@order.UserName</td>
-                            <td>@order.TotalAmount.ToString("0.00") JD</td>
+                            <td><strong>@order.TotalAmount.ToString("0.00") JD</strong></td>
                             <td><span class="@statusClass">@order.Status</span></td>
-                            <td class="text-end"><a asp-controller="Orders" asp-action="AdminDetails" asp-route-id="@order.Id" class="admin-table-action">View</a></td>
+                            <td class="text-end"><a asp-controller="Orders" asp-action="AdminDetails" asp-route-id="@order.Id" class="admin-table-action">Open</a></td>
                         </tr>
                     }
                     </tbody>
@@ -107,14 +114,14 @@
                 <span class="admin-panel__eyebrow">Inventory</span>
                 <h2 id="low-stock-title">Low Stock</h2>
             </div>
-            <a asp-controller="Products" asp-action="Index" class="admin-panel__link">Products</a>
+            <a asp-controller="Products" asp-action="Index" class="admin-panel__link">Products →</a>
         </div>
 
         @if (!Model.LowStockProducts.Any())
         {
             <div class="admin-empty-state">
-                <strong>No low-stock products</strong>
-                <span>Active products with five units or fewer will appear here.</span>
+                <strong>Stock levels are clear</strong>
+                <span>Products at five units or fewer will appear here.</span>
             </div>
         }
         else
@@ -123,7 +130,10 @@
                 @foreach (var product in Model.LowStockProducts)
                 {
                     <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="admin-list-item">
-                        <span><strong>@product.Name</strong><small>@product.Price.ToString("0.00") JD</small></span>
+                        <span>
+                            <strong>@product.Name</strong>
+                            <small>@product.Price.ToString("0.00") JD</small>
+                        </span>
                         <span class="@(product.StockQuantity == 0 ? "status-badge status-badge--danger" : "status-badge status-badge--warning")">
                             @product.StockQuantity in stock
                         </span>
@@ -136,7 +146,9 @@
 
 <div class="admin-dashboard-grid admin-dashboard-grid--equal">
     <section class="admin-panel" aria-labelledby="order-status-title">
-        <div class="admin-panel__header"><div><span class="admin-panel__eyebrow">Orders</span><h2 id="order-status-title">Orders by Status</h2></div></div>
+        <div class="admin-panel__header">
+            <div><span class="admin-panel__eyebrow">Orders</span><h2 id="order-status-title">Order Status</h2></div>
+        </div>
         <div class="admin-status-list">
             @foreach (var item in Model.OrdersByStatus)
             {
@@ -144,8 +156,11 @@
             }
         </div>
     </section>
+
     <section class="admin-panel" aria-labelledby="payment-status-title">
-        <div class="admin-panel__header"><div><span class="admin-panel__eyebrow">Payments</span><h2 id="payment-status-title">Payment Status</h2></div></div>
+        <div class="admin-panel__header">
+            <div><span class="admin-panel__eyebrow">Payments</span><h2 id="payment-status-title">Payment Status</h2></div>
+        </div>
         <div class="admin-status-list">
             @foreach (var item in Model.OrdersByPaymentStatus)
             {

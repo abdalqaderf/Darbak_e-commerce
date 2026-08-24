@@ -2,116 +2,113 @@
 @model RegisterModel
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create account";
 }
 
 <section class="auth-page" aria-labelledby="register-title">
-    <div class="container">
-        <div class="auth-shell">
-            <aside class="auth-visual auth-visual-register" aria-hidden="true">
-                <div class="auth-visual-grid"></div>
-                <div class="auth-visual-content">
-                    <a asp-controller="Home" asp-action="Index" class="auth-visual-brand" tabindex="-1">Darbak<span>.</span></a>
+    <div class="auth-shell">
+        <aside class="auth-visual auth-visual-register" aria-hidden="true">
+            <div class="auth-visual-content">
+                <div class="auth-visual-kicker">DARBAK / ACCOUNT</div>
 
-                    <div class="auth-visual-copy">
-                        <span class="auth-eyebrow">Your garage starts here</span>
-                        <h2>Find the right parts.<br />Keep moving.</h2>
-                        <p>Create an account to save favorites, submit reviews, and access your order history.</p>
-                    </div>
-
-                    <svg class="auth-car-art" viewBox="0 0 760 330" role="presentation" focusable="false">
-                        <path class="auth-car-road" d="M22 276H738" />
-                        <path class="auth-car-line" d="M118 237c10-31 38-55 72-61l101-18c27-5 47-21 63-43l18-24c9-12 23-19 38-19h89c30 0 59 13 79 36l42 48 58 17c21 6 36 25 36 47v17H118z" />
-                        <path class="auth-car-window" d="M342 151l43-56c6-8 15-12 25-12h80c19 0 37 8 50 22l37 43z" />
-                        <circle class="auth-car-wheel" cx="246" cy="237" r="47" />
-                        <circle class="auth-car-wheel" cx="579" cy="237" r="47" />
-                        <circle class="auth-car-hub" cx="246" cy="237" r="18" />
-                        <circle class="auth-car-hub" cx="579" cy="237" r="18" />
-                        <path class="auth-car-accent" d="M126 217h78M646 217h57" />
-                    </svg>
+                <div class="auth-visual-copy">
+                    <span class="auth-eyebrow">Create account</span>
+                    <h2>Save parts. Follow orders. Keep your account together.</h2>
+                    <p>Use one Darbak account for your wishlist, reviews, and order history.</p>
                 </div>
-            </aside>
 
-            <div class="auth-panel">
-                <div class="auth-panel-inner">
-                    <a asp-controller="Home" asp-action="Index" class="auth-mobile-brand">Darbak<span>.</span></a>
+                <div class="auth-visual-specs">
+                    <div><span>01</span><strong>Save</strong></div>
+                    <div><span>02</span><strong>Order</strong></div>
+                    <div><span>03</span><strong>Track</strong></div>
+                </div>
+            </div>
+        </aside>
 
-                    <div class="auth-heading">
-                        <span class="auth-eyebrow auth-eyebrow-dark">Create your account</span>
-                        <h1 id="register-title">Join Darbak</h1>
-                        <p>Use your email to create a customer account.</p>
+        <div class="auth-panel">
+            <div class="auth-panel-inner">
+                <div class="auth-heading">
+                    <span class="auth-eyebrow auth-eyebrow-dark">New account</span>
+                    <h1 id="register-title">Create your account</h1>
+                    <p>Create your Darbak account.</p>
+                </div>
+
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
+                    <div asp-validation-summary="ModelOnly" class="auth-validation-summary text-danger" role="alert"></div>
+
+                    <div class="auth-field">
+                        <label asp-for="Input.FullName" class="form-label">Full name</label>
+                        <input asp-for="Input.FullName"
+                               class="form-control auth-input"
+                               autocomplete="name"
+                               aria-required="true"
+                               placeholder="Your full name" />
+                        <span asp-validation-for="Input.FullName" class="text-danger auth-field-error"></span>
                     </div>
 
-                    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="auth-form">
-                        <div asp-validation-summary="ModelOnly" class="auth-validation-summary text-danger" role="alert"></div>
+                    <div class="auth-field">
+                        <label asp-for="Input.Email" class="form-label">Email</label>
+                        <input asp-for="Input.Email"
+                               class="form-control auth-input"
+                               autocomplete="username"
+                               aria-required="true"
+                               placeholder="name@example.com" />
+                        <span asp-validation-for="Input.Email" class="text-danger auth-field-error"></span>
+                    </div>
 
-                        <div class="auth-field">
-                            <label asp-for="Input.Email" class="form-label">Email</label>
-                            <input asp-for="Input.Email"
-                                   class="form-control auth-input"
-                                   autocomplete="username"
-                                   aria-required="true"
-                                   placeholder="name@example.com" />
-                            <span asp-validation-for="Input.Email" class="text-danger auth-field-error"></span>
-                        </div>
+                    <div class="auth-field">
+                        <label asp-for="Input.Password" class="form-label">Password</label>
+                        <input asp-for="Input.Password"
+                               class="form-control auth-input"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Create a password" />
+                        <span asp-validation-for="Input.Password" class="text-danger auth-field-error"></span>
+                    </div>
 
-                        <div class="auth-field">
-                            <label asp-for="Input.Password" class="form-label">Password</label>
-                            <input asp-for="Input.Password"
-                                   class="form-control auth-input"
-                                   autocomplete="new-password"
-                                   aria-required="true"
-                                   placeholder="Create a password" />
-                            <span asp-validation-for="Input.Password" class="text-danger auth-field-error"></span>
-                            <small class="auth-help-text">Use at least 6 characters and follow the password requirements configured for the site.</small>
-                        </div>
+                    <div class="auth-field">
+                        <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
+                        <input asp-for="Input.ConfirmPassword"
+                               class="form-control auth-input"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Re-enter your password" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger auth-field-error"></span>
+                    </div>
 
-                        <div class="auth-field">
-                            <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
-                            <input asp-for="Input.ConfirmPassword"
-                                   class="form-control auth-input"
-                                   autocomplete="new-password"
-                                   aria-required="true"
-                                   placeholder="Re-enter your password" />
-                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger auth-field-error"></span>
-                        </div>
-
-                        <button id="registerSubmit" type="submit" class="btn btn-accent auth-submit">Create account</button>
-
-                        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
-                        {
-                            <div class="auth-divider"><span>or register with</span></div>
-
-                            <div class="auth-external-actions">
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit"
-                                            form="external-account"
-                                            class="btn btn-outline-secondary auth-provider-button"
-                                            name="provider"
-                                            value="@provider.Name"
-                                            title="Register using your @provider.DisplayName account">
-                                        @provider.DisplayName
-                                    </button>
-                                }
-                            </div>
-                        }
-
-                        <div class="auth-footer-links">
-                            <p>Already have an account? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a></p>
-                        </div>
-                    </form>
+                    <button id="registerSubmit" type="submit" class="btn btn-accent auth-submit">Create account</button>
 
                     @if ((Model.ExternalLogins?.Count ?? 0) > 0)
                     {
-                        <form id="external-account"
-                              asp-page="./ExternalLogin"
-                              asp-route-returnUrl="@Model.ReturnUrl"
-                              method="post"
-                              class="d-none">
-                        </form>
+                        <div class="auth-divider"><span>or</span></div>
+                        <div class="auth-external-actions">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <button type="submit"
+                                        form="external-account"
+                                        class="btn btn-outline-secondary auth-provider-button"
+                                        name="provider"
+                                        value="@provider.Name"
+                                        title="Register using your @provider.DisplayName account">
+                                    @provider.DisplayName
+                                </button>
+                            }
+                        </div>
                     }
-                </div>
+
+                    <div class="auth-footer-links">
+                        <p>Already have an account? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a></p>
+                    </div>
+                </form>
+
+                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+                    <form id="external-account"
+                          asp-page="./ExternalLogin"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post"
+                          class="d-none"></form>
+                }
             </div>
         </div>
     </div>
