@@ -1,4 +1,4 @@
-﻿namespace Darbak.ViewModels
+namespace Darbak.ViewModels
 {
     public class HomeViewModel
     {
@@ -51,6 +51,8 @@
         public string Content { get; set; } = null!;
 
         public string UserName { get; set; } = null!;
+
+        public int? Rating { get; set; }
 
         public DateTime CreatedAt { get; set; }
     }

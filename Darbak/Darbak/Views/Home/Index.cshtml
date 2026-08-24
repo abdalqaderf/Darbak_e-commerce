@@ -1,4 +1,4 @@
-﻿@model Darbak.ViewModels.HomeViewModel
+@model Darbak.ViewModels.HomeViewModel
 
 @{
     ViewData["Title"] = "Home";
@@ -9,17 +9,30 @@
     var offerProduct = Model.LatestProducts
         .FirstOrDefault(product => product.StockQuantity > 0 && featuredProducts.All(featured => featured.Id != product.Id))
         ?? Model.LatestProducts.FirstOrDefault(product => product.StockQuantity > 0);
-    var homeTestimonials = Model.Testimonials.Take(3).ToList();
+    var homeTestimonials = Model.Testimonials.ToList();
 }
 
 <section class="home-hero" aria-labelledby="homeHeroTitle">
     <div class="home-hero-visual" aria-hidden="true">
         <span class="home-hero-image-fallback">DBK</span>
-        <img src="~/images/home/Hero_photo.png"
+
+        <img src="~/images/Home/Hero_photo.png"
              alt=""
              class="home-hero-image"
              asp-append-version="true"
              onerror="this.hidden=true" />
+
+        <video class="home-hero-video"
+               autoplay
+               muted
+               loop
+               playsinline
+               preload="none"
+               disablepictureinpicture
+               poster="@Url.Content("~/images/Home/Hero_photo.png")"
+               data-hero-video
+               data-src="@Url.Content("~/videos/home/darbak-hero.mp4")"
+               tabindex="-1"></video>
     </div>
 
     <div class="home-hero-shade" aria-hidden="true"></div>
@@ -193,18 +206,22 @@
                            class="home-product-image-link"
                            aria-label="View @product.Name">
 
-                            <span class="home-product-placeholder @(!string.IsNullOrWhiteSpace(product.MainImageUrl) ? "is-hidden" : string.Empty)" aria-hidden="true">
-                                <strong>DBK</strong>
-                                <small>No image</small>
-                            </span>
-
                             @if (!string.IsNullOrWhiteSpace(product.MainImageUrl))
                             {
                                 <img src="@product.MainImageUrl"
                                      alt="@product.Name"
                                      class="home-product-image"
                                      loading="lazy"
-                                     onerror="this.hidden=true; this.previousElementSibling.classList.remove('is-hidden');" />
+                                     onerror="this.hidden=true; this.nextElementSibling.style.display='flex';" />
+                                <span class="home-product-image-empty" style="display:none" aria-hidden="true">
+                                    <span>Image unavailable</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="home-product-image-empty" aria-hidden="true">
+                                    <span>Image unavailable</span>
+                                </span>
                             }
                         </a>
 
@@ -349,14 +366,21 @@
                class="home-offer-feature">
 
                 <div class="home-offer-media">
-                    <span class="home-offer-image-fallback @(!string.IsNullOrWhiteSpace(offerProduct.MainImageUrl) ? "is-hidden" : string.Empty)" aria-hidden="true">DBK</span>
-
                     @if (!string.IsNullOrWhiteSpace(offerProduct.MainImageUrl))
                     {
                         <img src="@offerProduct.MainImageUrl"
                              alt="@offerProduct.Name"
                              loading="lazy"
-                             onerror="this.hidden=true; this.previousElementSibling.classList.remove('is-hidden');" />
+                             onerror="this.hidden=true; this.nextElementSibling.style.display='flex';" />
+                        <span class="home-offer-image-empty" style="display:none" aria-hidden="true">
+                            <span>Image unavailable</span>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="home-offer-image-empty" aria-hidden="true">
+                            <span>Image unavailable</span>
+                        </span>
                     }
                 </div>
 
@@ -449,75 +473,90 @@
     </div>
 </section>
 
-<section class="home-section home-testimonials" aria-labelledby="testimonialsTitle">
-    <div class="home-line-heading">
-        <div class="home-line-heading-title">
-            <h2 id="testimonialsTitle">What Customers Say</h2>
-            <span aria-hidden="true"></span>
+<section id="customer-feedback" class="home-section home-testimonials home-testimonials--rail" aria-labelledby="testimonialsTitle">
+    <header class="home-testimonial-heading">
+        <div>
+            <span class="section-kicker">Customer Feedback</span>
+            <h2 id="testimonialsTitle">What customers say.</h2>
         </div>
 
-        @if (homeTestimonials.Any())
-        {
-            <a asp-controller="Testimonials"
-               asp-action="Index"
-               class="home-line-link">
-                See all testimonials
-                <span aria-hidden="true">→</span>
-            </a>
-        }
-    </div>
-
-    @if (!homeTestimonials.Any())
-    {
-        <div class="home-testimonial-empty">
-            <div>
-                <strong>No approved testimonials yet.</strong>
-                <span>Customer feedback will appear here after moderation.</span>
-            </div>
-
+        <div class="home-testimonial-controls">
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <a asp-controller="Testimonials" asp-action="Create">Share your experience →</a>
+                <a asp-controller="Testimonials" asp-action="Create" class="home-testimonial-share">
+                    Share your experience
+                </a>
             }
             else
             {
-                <a asp-area="Identity" asp-page="/Account/Login">Sign in to share →</a>
+                <a asp-area="Identity" asp-page="/Account/Login" class="home-testimonial-share">
+                    Sign in to share
+                </a>
             }
+
+            @if (homeTestimonials.Count > 1)
+            {
+                <div class="home-testimonial-arrows" aria-label="Testimonial navigation">
+                    <button type="button"
+                            class="home-testimonial-arrow"
+                            data-testimonial-scroll="-1"
+                            data-testimonial-target="homeTestimonialRail"
+                            aria-label="Previous testimonials">
+                        <span aria-hidden="true">←</span>
+                    </button>
+                    <button type="button"
+                            class="home-testimonial-arrow"
+                            data-testimonial-scroll="1"
+                            data-testimonial-target="homeTestimonialRail"
+                            aria-label="Next testimonials">
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </div>
+            }
+        </div>
+    </header>
+
+    @if (!homeTestimonials.Any())
+    {
+        <div class="home-testimonial-empty home-testimonial-empty--compact" role="status">
+            <div>
+                <strong>No approved customer feedback yet.</strong>
+                <span>Approved feedback will appear here.</span>
+            </div>
         </div>
     }
     else
     {
-        var featuredTestimonial = homeTestimonials[0];
-        var supportingTestimonials = homeTestimonials.Skip(1).ToList();
-
-        <div class="home-testimonial-composition @(supportingTestimonials.Any() ? string.Empty : "home-testimonial-composition--single")">
-            <article class="home-testimonial-feature">
-                <span class="home-testimonial-quote" aria-hidden="true">“</span>
-                <p>@featuredTestimonial.Content</p>
-                <footer>
-                    <strong>@featuredTestimonial.UserName</strong>
-                    <time datetime="@featuredTestimonial.CreatedAt.ToString("yyyy-MM-dd")">
-                        @featuredTestimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
-                    </time>
-                </footer>
-            </article>
-
-            @if (supportingTestimonials.Any())
+        <div id="homeTestimonialRail"
+             class="home-testimonial-rail"
+             data-testimonial-carousel
+             tabindex="0"
+             aria-label="Customer feedback">
+            @foreach (var testimonial in homeTestimonials)
             {
-                <div class="home-testimonial-supporting">
-                    @foreach (var testimonial in supportingTestimonials)
+                <article class="home-testimonial-slide">
+                    @if (testimonial.Rating.HasValue)
                     {
-                        <article class="home-testimonial-card">
-                            <p>@testimonial.Content</p>
-                            <footer>
-                                <strong>@testimonial.UserName</strong>
-                                <time datetime="@testimonial.CreatedAt.ToString("yyyy-MM-dd")">
-                                    @testimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
-                                </time>
-                            </footer>
-                        </article>
+                        <div class="testimonial-stars"
+                             aria-label="@testimonial.Rating out of 5 stars">
+                            @for (var star = 1; star <= 5; star++)
+                            {
+                                <span class="@(star <= testimonial.Rating.Value ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                            }
+                        </div>
                     }
-                </div>
+
+                    <blockquote>
+                        <p>“@testimonial.Content”</p>
+                    </blockquote>
+
+                    <footer>
+                        <strong>@testimonial.UserName</strong>
+                        <time datetime="@testimonial.CreatedAt.ToString("yyyy-MM-dd")">
+                            @testimonial.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                        </time>
+                    </footer>
+                </article>
             }
         </div>
     }

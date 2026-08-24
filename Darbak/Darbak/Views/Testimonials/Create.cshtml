@@ -1,4 +1,4 @@
-@model Darbak.Models.Testimonial
+@model Darbak.ViewModels.TestimonialCreateViewModel
 
 @{
     ViewData["Title"] = "Share Your Experience";
@@ -7,8 +7,6 @@
 <nav class="darbak-breadcrumb" aria-label="Breadcrumb">
     <a asp-controller="Home" asp-action="Index">Home</a>
     <span aria-hidden="true">/</span>
-    <a asp-action="Index">Testimonials</a>
-    <span aria-hidden="true">/</span>
     <span aria-current="page">Share Your Experience</span>
 </nav>
 
@@ -16,14 +14,34 @@
     <header class="testimonial-submit-intro">
         <span class="section-eyebrow">Customer Feedback</span>
         <h1 id="testimonial-title">Share your experience.</h1>
-        <p>Your testimonial is reviewed before it appears publicly.</p>
+        <p>Your feedback is reviewed before it appears publicly.</p>
     </header>
 
     <form asp-action="Create" method="post" class="testimonial-submit-form">
         <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
 
+        <fieldset class="testimonial-rating-field">
+            <legend>Your rating</legend>
+            <div class="testimonial-rating-inputs" data-testimonial-rating-input>
+                @for (var rating = 1; rating <= 5; rating++)
+                {
+                    var id = $"testimonial-rating-{rating}";
+                    <input asp-for="Rating"
+                           type="radio"
+                           id="@id"
+                           value="@rating"
+                           class="testimonial-rating-radio visually-hidden" />
+                    <label for="@id"
+                           class="testimonial-rating-star"
+                           data-rating-value="@rating"
+                           aria-label="@rating out of 5 stars">★</label>
+                }
+            </div>
+            <span asp-validation-for="Rating" class="field-validation-error"></span>
+        </fieldset>
+
         <div class="testimonial-submit-field">
-            <label asp-for="Content" class="form-label">Your testimonial</label>
+            <label asp-for="Content" class="form-label">Your feedback</label>
             <textarea asp-for="Content"
                       class="form-control"
                       rows="7"
@@ -37,8 +55,8 @@
         </div>
 
         <div class="testimonial-submit-actions">
-            <button type="submit" class="btn btn-primary">Submit Testimonial</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            <a asp-controller="Home" asp-action="Index" asp-fragment="customer-feedback" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </section>

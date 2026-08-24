@@ -12472,14 +12472,21 @@ html body .site-header .site-brand-logo {
     object-position: left center;
 }
 
-/* Product-media backgrounds: a restrained automotive technical halo.
-   The DBK fallback is now shown only when an image is actually missing. */
+/* Product-media backgrounds: quiet Darbak automotive surface.
+   Transparent product PNGs sit over a technical grid and a very subtle brand mark.
+   Missing-image text is rendered only when an image is genuinely unavailable. */
 .home-product-image-link,
 .catalog-product-image-link,
 .home-offer-media {
     position: relative;
     isolation: isolate;
-    background: #f2f4f7;
+    overflow: hidden;
+    background-color: #f2f4f7;
+    background-image:
+        linear-gradient(rgba(17, 24, 39, .026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 24, 39, .026) 1px, transparent 1px),
+        radial-gradient(circle at 50% 48%, rgba(255, 255, 255, .98) 0 30%, rgba(244, 246, 249, .94) 62%, rgba(238, 241, 245, .98) 100%);
+    background-size: 42px 42px, 42px 42px, 100% 100%;
 }
 
 .home-product-image-link::before,
@@ -12487,32 +12494,25 @@ html body .site-header .site-brand-logo {
 .home-offer-media::before {
     position: absolute;
     z-index: 0;
-    top: 50%;
-    left: 50%;
-    width: 58%;
-    max-width: 240px;
-    aspect-ratio: 1;
-    border: 1px solid rgba(17, 24, 39, .075);
-    border-radius: 50%;
+    inset: 20% 27%;
+    background: url('/images/brand/darbak-favicon.png') center / contain no-repeat;
     content: "";
-    transform: translate(-50%, -50%);
-    box-shadow:
-        inset 0 0 0 14px rgba(17, 24, 39, .012),
-        0 0 0 1px rgba(255,255,255,.55);
+    opacity: .035;
+    filter: grayscale(1) contrast(.8);
     pointer-events: none;
 }
 
 .home-product-image-link::after,
-.catalog-product-image-link::after {
+.catalog-product-image-link::after,
+.home-offer-media::after {
     position: absolute;
     z-index: 0;
-    bottom: 13%;
-    left: 50%;
-    width: 34px;
+    right: 8%;
+    bottom: 8%;
+    width: 32px;
     height: 2px;
-    background: rgba(230, 57, 70, .55);
+    background: rgba(230, 57, 70, .48);
     content: "";
-    transform: translateX(-50%);
     pointer-events: none;
 }
 
@@ -12523,16 +12523,29 @@ html body .site-header .site-brand-logo {
     z-index: 2;
 }
 
-.home-product-placeholder.is-hidden,
-.catalog-product-placeholder.is-hidden,
-.home-offer-image-fallback.is-hidden {
-    display: none !important;
+.home-product-image-empty,
+.catalog-product-image-empty,
+.home-offer-image-empty {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: #8a95a4;
+    font-size: .64rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-align: center;
+    text-transform: uppercase;
 }
 
-.home-product-placeholder,
-.catalog-product-placeholder,
-.home-offer-image-fallback {
-    z-index: 1;
+.home-product-image-empty span,
+.catalog-product-image-empty span,
+.home-offer-image-empty span {
+    padding: .38rem .58rem;
+    border: 1px solid rgba(17, 24, 39, .12);
+    background: rgba(248, 250, 252, .78);
 }
 
 /* The home section is a curated spotlight, not a discount claim. */
@@ -12641,5 +12654,320 @@ html body .site-footer .site-footer-code {
 @media (max-width: 575.98px) {
     .site-footer-brand-visual {
         width: min(100%, 265px);
+    }
+}
+
+/* =========================================================
+   Home hero video — desktop enhancement with static fallback
+   ========================================================= */
+
+.home-hero-video {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    opacity: 0;
+    filter: brightness(.72) saturate(.9) contrast(1.06);
+    transition: opacity .45s ease;
+    pointer-events: none;
+}
+
+.home-hero-video.is-ready {
+    opacity: 1;
+}
+
+.home-hero-shade {
+    background:
+        linear-gradient(90deg, rgba(5,12,21,.99) 0%, rgba(5,12,21,.96) 27%, rgba(5,12,21,.82) 45%, rgba(5,12,21,.4) 67%, rgba(5,12,21,.12) 100%),
+        linear-gradient(0deg, rgba(5,12,21,.8) 0%, rgba(5,12,21,.04) 38%);
+}
+
+@media (max-width: 767.98px), (prefers-reduced-motion: reduce) {
+    .home-hero-video {
+        display: none;
+    }
+}
+
+
+/* =========================================================
+   Customer feedback rail + testimonial ratings
+   ========================================================= */
+.home-testimonials--rail {
+    padding-top: 2.5rem;
+    padding-bottom: 3rem;
+}
+
+.home-testimonial-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-strong);
+}
+
+.home-testimonial-heading .section-kicker {
+    display: block;
+    margin-bottom: .35rem;
+    color: var(--color-accent);
+    font-size: .7rem;
+    font-weight: 850;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.home-testimonial-heading h2 {
+    margin: 0;
+    font-size: clamp(1.45rem, 2.2vw, 2rem);
+}
+
+.home-testimonial-controls {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+}
+
+.home-testimonial-share {
+    color: var(--color-primary);
+    font-size: .72rem;
+    font-weight: 850;
+    letter-spacing: .055em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.home-testimonial-share:hover,
+.home-testimonial-share:focus-visible {
+    color: var(--color-accent);
+}
+
+.home-testimonial-arrows {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+}
+
+.home-testimonial-arrow {
+    display: inline-grid;
+    width: 42px;
+    height: 40px;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 1rem;
+    transition: background var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.home-testimonial-arrow + .home-testimonial-arrow {
+    border-left: 1px solid var(--color-border-strong);
+}
+
+.home-testimonial-arrow:hover:not(:disabled),
+.home-testimonial-arrow:focus-visible:not(:disabled) {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.home-testimonial-arrow:disabled {
+    cursor: default;
+    opacity: .28;
+}
+
+.home-testimonial-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(320px, 32%);
+    gap: 1rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-behavior: smooth;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    padding: .15rem .05rem .35rem;
+}
+
+.home-testimonial-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.home-testimonial-slide {
+    position: relative;
+    display: flex;
+    min-height: 250px;
+    flex-direction: column;
+    padding: 1.35rem 1.4rem 1.2rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+    scroll-snap-align: start;
+}
+
+.home-testimonial-slide::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 3px;
+    background: var(--color-accent);
+    content: "";
+}
+
+.home-testimonial-slide blockquote {
+    margin: 1rem 0 1.6rem;
+}
+
+.home-testimonial-slide blockquote p {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: var(--color-primary);
+    font-size: clamp(1rem, 1.35vw, 1.15rem);
+    font-weight: 650;
+    line-height: 1.65;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+}
+
+.home-testimonial-slide footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.home-testimonial-slide footer strong {
+    color: var(--color-primary);
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.home-testimonial-slide footer time {
+    color: var(--color-text-muted);
+    font-size: .7rem;
+    white-space: nowrap;
+}
+
+.home-testimonial-empty--compact {
+    min-height: 0;
+    padding: 1.3rem 0;
+}
+
+.testimonial-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: .15rem;
+    color: #d1d5db;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.testimonial-stars span.is-filled {
+    color: #e6a416;
+}
+
+.testimonial-stars--admin {
+    font-size: .78rem;
+    white-space: nowrap;
+}
+
+.testimonial-rating-field {
+    margin: 0;
+    padding: 0 0 1.25rem;
+    border: 0;
+}
+
+.testimonial-rating-field legend {
+    margin-bottom: .6rem;
+    color: var(--color-primary);
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.testimonial-rating-inputs {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+}
+
+.testimonial-rating-star {
+    margin: 0;
+    cursor: pointer;
+    color: #d1d5db;
+    font-size: 2rem;
+    line-height: 1;
+    transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.testimonial-rating-star.is-filled {
+    color: #e6a416;
+}
+
+.testimonial-rating-star:hover {
+    transform: translateY(-1px);
+}
+
+.testimonial-rating-radio:focus-visible + .testimonial-rating-star {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+}
+
+.about-testimonial-feature .testimonial-stars,
+.about-testimonial-supporting .testimonial-stars {
+    margin-bottom: .7rem;
+}
+
+@media (max-width: 991.98px) {
+    .home-testimonial-rail {
+        grid-auto-columns: minmax(300px, 48%);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .home-testimonials--rail {
+        padding-top: 2rem;
+        padding-bottom: 2.3rem;
+    }
+
+    .home-testimonial-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .9rem;
+    }
+
+    .home-testimonial-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .home-testimonial-rail {
+        grid-auto-columns: 86%;
+    }
+
+    .home-testimonial-slide {
+        min-height: 230px;
+        padding: 1.2rem;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .home-testimonial-rail {
+        grid-auto-columns: 92%;
+    }
+
+    .home-testimonial-share {
+        font-size: .66rem;
+    }
+
+    .testimonial-rating-star {
+        font-size: 1.8rem;
     }
 }

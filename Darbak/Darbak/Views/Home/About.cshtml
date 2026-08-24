@@ -25,7 +25,7 @@
                 <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary">
                     Shop Parts
                 </a>
-                <a asp-controller="Testimonials" asp-action="Index" class="about-text-link">
+                <a href="#about-testimonials-title" class="about-text-link">
                     Customer feedback <span aria-hidden="true">→</span>
                 </a>
             </div>
@@ -141,9 +141,12 @@
                 <span class="section-kicker">Customer Feedback</span>
                 <h2 id="about-testimonials-title">Shared by Darbak customers.</h2>
             </div>
-            <a asp-controller="Testimonials" asp-action="Index" class="about-text-link">
-                View testimonials <span aria-hidden="true">→</span>
-            </a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Testimonials" asp-action="Create" class="about-text-link">
+                    Share your experience <span aria-hidden="true">→</span>
+                </a>
+            }
         </header>
 
         @if (featuredTestimonial == null)
@@ -162,6 +165,15 @@
             <div class="about-testimonial-composition @(supportingTestimonials.Any() ? string.Empty : "about-testimonial-composition--single")">
                 <article class="about-testimonial-feature">
                     <span class="about-testimonial-quote" aria-hidden="true">“</span>
+                    @if (featuredTestimonial.Rating.HasValue)
+                    {
+                        <div class="testimonial-stars" aria-label="@featuredTestimonial.Rating out of 5 stars">
+                            @for (var star = 1; star <= 5; star++)
+                            {
+                                <span class="@(star <= featuredTestimonial.Rating.Value ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                            }
+                        </div>
+                    }
                     <blockquote>
                         <p>@featuredTestimonial.Content</p>
                     </blockquote>
@@ -179,6 +191,15 @@
                         @foreach (var testimonial in supportingTestimonials)
                         {
                             <article>
+                                @if (testimonial.Rating.HasValue)
+                                {
+                                    <div class="testimonial-stars" aria-label="@testimonial.Rating out of 5 stars">
+                                        @for (var star = 1; star <= 5; star++)
+                                        {
+                                            <span class="@(star <= testimonial.Rating.Value ? "is-filled" : string.Empty)" aria-hidden="true">★</span>
+                                        }
+                                    </div>
+                                }
                                 <blockquote><p>“@testimonial.Content”</p></blockquote>
                                 <footer>
                                     <strong>@testimonial.UserName</strong>

@@ -1,4 +1,4 @@
-﻿using Darbak.Models.Enums;
+using Darbak.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace Darbak.Models
@@ -10,6 +10,9 @@ namespace Darbak.Models
         [Required]
         [StringLength(1000)]
         public string Content { get; set; } = null!;
+
+        [Range(1, 5)]
+        public int? Rating { get; set; }
 
         public ApprovalStatus Status { get; set; } = ApprovalStatus.Pending;
 

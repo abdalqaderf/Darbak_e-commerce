@@ -9,6 +9,9 @@
         initializeMobileNavigation();
         initializeHeaderSearch();
         initializeConfirmationDialog();
+        initializeHeroVideo();
+        initializeTestimonialCarousel();
+        initializeTestimonialRating();
     });
 
     function initializeToasts() {
@@ -144,6 +147,187 @@
                 closeSearch();
                 trigger.focus();
             }
+        });
+    }
+
+
+    function initializeHeroVideo() {
+        const video = document.querySelector("[data-hero-video]");
+
+        if (!video) {
+            return;
+        }
+
+        const source = video.dataset.src;
+        const desktopViewport = window.matchMedia("(min-width: 768px)");
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let sourceAttached = false;
+
+        function enableVideo() {
+            if (!source || sourceAttached) {
+                return;
+            }
+
+            video.src = source;
+            sourceAttached = true;
+            video.load();
+
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(function () {
+                    // The static hero image remains visible if autoplay is blocked.
+                });
+            }
+        }
+
+        function disableVideo() {
+            if (!sourceAttached) {
+                return;
+            }
+
+            video.pause();
+            video.classList.remove("is-ready");
+            video.removeAttribute("src");
+            video.load();
+            sourceAttached = false;
+        }
+
+        function syncVideoState() {
+            if (desktopViewport.matches && !reducedMotion.matches) {
+                enableVideo();
+            } else {
+                disableVideo();
+            }
+        }
+
+        video.addEventListener("canplay", function () {
+            video.classList.add("is-ready");
+        });
+
+        video.addEventListener("error", function () {
+            video.classList.remove("is-ready");
+        });
+
+        document.addEventListener("visibilitychange", function () {
+            if (!sourceAttached) {
+                return;
+            }
+
+            if (document.hidden) {
+                video.pause();
+                return;
+            }
+
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(function () { });
+            }
+        });
+
+        if (typeof desktopViewport.addEventListener === "function") {
+            desktopViewport.addEventListener("change", syncVideoState);
+            reducedMotion.addEventListener("change", syncVideoState);
+        } else {
+            desktopViewport.addListener(syncVideoState);
+            reducedMotion.addListener(syncVideoState);
+        }
+
+        syncVideoState();
+    }
+
+
+    function initializeTestimonialCarousel() {
+        document.querySelectorAll("[data-testimonial-carousel]").forEach(function (rail) {
+            const targetId = rail.id;
+            if (!targetId) {
+                return;
+            }
+
+            const buttons = Array.from(document.querySelectorAll(`[data-testimonial-target="${targetId}"]`));
+            if (buttons.length === 0) {
+                return;
+            }
+
+            function updateButtons() {
+                const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
+                buttons.forEach(function (button) {
+                    const direction = Number(button.dataset.testimonialScroll || "0");
+                    if (direction < 0) {
+                        button.disabled = rail.scrollLeft <= 4;
+                    } else if (direction > 0) {
+                        button.disabled = rail.scrollLeft >= maxScroll - 4;
+                    }
+                });
+            }
+
+            buttons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const direction = Number(button.dataset.testimonialScroll || "0");
+                    if (!direction) {
+                        return;
+                    }
+
+                    const firstCard = rail.querySelector(".home-testimonial-slide");
+                    const styles = window.getComputedStyle(rail);
+                    const gap = parseFloat(styles.columnGap || styles.gap || "0") || 0;
+                    const distance = firstCard
+                        ? firstCard.getBoundingClientRect().width + gap
+                        : rail.clientWidth * 0.82;
+
+                    rail.scrollBy({
+                        left: direction * distance,
+                        behavior: "smooth"
+                    });
+                });
+            });
+
+            rail.addEventListener("scroll", updateButtons, { passive: true });
+            window.addEventListener("resize", updateButtons);
+            updateButtons();
+        });
+    }
+
+    function initializeTestimonialRating() {
+        document.querySelectorAll("[data-testimonial-rating-input]").forEach(function (group) {
+            const radios = Array.from(group.querySelectorAll("input[type='radio']"));
+            const labels = Array.from(group.querySelectorAll("[data-rating-value]"));
+
+            if (radios.length === 0 || labels.length === 0) {
+                return;
+            }
+
+            function paint(value) {
+                labels.forEach(function (label) {
+                    const starValue = Number(label.dataset.ratingValue || "0");
+                    label.classList.toggle("is-filled", starValue <= value);
+                });
+            }
+
+            function selectedValue() {
+                const checked = radios.find(function (radio) {
+                    return radio.checked;
+                });
+
+                return checked ? Number(checked.value) : 0;
+            }
+
+            radios.forEach(function (radio) {
+                radio.addEventListener("change", function () {
+                    paint(selectedValue());
+                });
+            });
+
+            labels.forEach(function (label) {
+                label.addEventListener("mouseenter", function () {
+                    paint(Number(label.dataset.ratingValue || "0"));
+                });
+            });
+
+            group.addEventListener("mouseleave", function () {
+                paint(selectedValue());
+            });
+
+            paint(selectedValue());
         });
     }
 

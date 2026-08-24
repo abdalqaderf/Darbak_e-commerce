@@ -101,7 +101,6 @@ namespace Darbak.Controllers
                         ApprovalStatus.Approved)
                     .OrderByDescending(t =>
                         t.CreatedAt)
-                    .Take(3)
                     .Select(t =>
                         new HomeTestimonialViewModel
                         {
@@ -114,6 +113,9 @@ namespace Darbak.Controllers
                                 t.User.FullName
                                 ?? t.User.UserName
                                 ?? "User",
+
+                            Rating =
+                                t.Rating,
 
                             CreatedAt =
                                 t.CreatedAt
@@ -163,6 +165,9 @@ namespace Darbak.Controllers
                                 t.User.FullName
                                 ?? t.User.UserName
                                 ?? "User",
+
+                            Rating =
+                                t.Rating,
 
                             CreatedAt =
                                 t.CreatedAt
